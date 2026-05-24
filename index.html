@@ -627,18 +627,19 @@
 <script>
 /* ── PRODUCTS DATA (bilingual) ── */
 const products = [
-  { en:"Rice & Grains",    ta:"அரிசி மற்றும் தானியங்கள்", cat:"grocery",    icon:"🌾", price:"₹60 – ₹200",  labelEn:"Grocery",    labelTa:"மளிகை" },
-  { en:"Fresh Vegetables", ta:"புதிய காய்கறிகள்",          cat:"grocery",    icon:"🥦", price:"₹20 – ₹80",   labelEn:"Grocery",    labelTa:"மளிகை" },
-  { en:"Cooking Oils",     ta:"சமையல் எண்ணெய்",            cat:"grocery",    icon:"🫙", price:"₹120 – ₹300", labelEn:"Grocery",    labelTa:"மளிகை" },
-  { en:"Spices & Masala",  ta:"மசாலா பொருட்கள்",           cat:"grocery",    icon:"🌶️",price:"₹30 – ₹150",  labelEn:"Grocery",    labelTa:"மளிகை" },
-  { en:"Biscuits & Snacks",ta:"பிஸ்கட் மற்றும் தின்பண்டங்கள்", cat:"snacks", icon:"🍪", price:"₹10 – ₹80",labelEn:"Snacks",     labelTa:"தின்பண்டங்கள்" },
-  { en:"Cold Drinks",      ta:"குளிர் பானங்கள்",            cat:"snacks",     icon:"🥤", price:"₹20 – ₹60",   labelEn:"Snacks",     labelTa:"தின்பண்டங்கள்" },
-  { en:"Chocolates",       ta:"சாக்லேட்கள்",                cat:"snacks",     icon:"🍫", price:"₹10 – ₹100",  labelEn:"Snacks",     labelTa:"தின்பண்டங்கள்" },
-  { en:"Notebooks",        ta:"நோட்புக்குகள்",              cat:"stationery", icon:"📓", price:"₹30 – ₹120",  labelEn:"Stationery", labelTa:"எழுதுபொருட்கள்" },
-  { en:"Pens & Pencils",   ta:"பேனா மற்றும் பென்சில்",     cat:"stationery", icon:"✏️", price:"₹5 – ₹50",    labelEn:"Stationery", labelTa:"எழுதுபொருட்கள்" },
-  { en:"Art Supplies",     ta:"கலை பொருட்கள்",              cat:"stationery", icon:"🎨", price:"₹40 – ₹200",  labelEn:"Stationery", labelTa:"எழுதுபொருட்கள்" },
-  { en:"Detergents",       ta:"சோப்பு மற்றும் டிடர்ஜென்ட்", cat:"household",  icon:"🧴", price:"₹50 – ₹250", labelEn:"Household",  labelTa:"வீட்டு பொருட்கள்" },
-  { en:"Cleaning Items",   ta:"சுத்தப்படுத்தும் பொருட்கள்", cat:"household",  icon:"🧹", price:"₹30 – ₹180", labelEn:"Household",  labelTa:"வீட்டு பொருட்கள்" },
+  { en:"Rice",             ta:"அரிசி",                       cat:"grocery",    icon:"images/rice.jpg", price:"₹60 – ₹200",  labelEn:"Grocery",    labelTa:"மளிகை" },
+  { en:"Fresh Onions, Potatos & Garlic", ta:"வெங்காயம்,உருளை கிழங்கு & பூண்டு",          cat:"grocery",    icon:"images/onion.jpg", price:"₹20 – ₹80",   labelEn:"Grocery",    labelTa:"மளிகை" },
+  { en:"Cooking Oils",     ta:"சமையல் எண்ணெய்",            cat:"grocery",    icon:"images/oil.png",price:"₹120 – ₹300", labelEn:"Grocery",    labelTa:"மளிகை" },
+  { en:"Spices & Masala",  ta:"மசாலா பொருட்கள்",           cat:"grocery",    icon:"images/spices.png",price:"₹30 – ₹150",  labelEn:"Grocery",    labelTa:"மளிகை" },
+  { en:"Biscuits & Snacks",ta:"பிஸ்கட் மற்றும் தின்பண்டங்கள்", cat:"snacks", icon:"images/goodday.jpg", price:"₹10 – ₹80",labelEn:"Snacks",     labelTa:"தின்பண்டங்கள்" },
+  { en:"Milk & curd",      ta:"பால் & தயிர்",                 cat:"grocery",     icon:"images/milk.png", price:"₹20 – ₹60",   labelEn:"Grocery",     labelTa:"மளிகை" },
+  { en:"Butter Milk",       ta:"மோர்",                        cat:"snacks",     icon:"images/bmilk.png", price:"₹10 – ₹20",  labelEn:"Snacks",     labelTa:"தின்பண்டங்கள்" },
+  { en:"Chocolates",       ta:"சாக்லேட்கள்",                cat:"snacks",     icon:"images/chocolates.jpg", price:"₹10 – ₹100",  labelEn:"Snacks",     labelTa:"தின்பண்டங்கள்" },
+  { en:"Notebooks",        ta:"நோட்புக்குகள்",              cat:"stationery", icon:"images/note.jpg", price:"₹30 – ₹120",  labelEn:"Stationery", labelTa:"எழுதுபொருட்கள்" },
+  { en:"Pens & Pencils",   ta:"பேனா மற்றும் பென்சில்",     cat:"stationery", icon:"images/pen.jpg", price:"₹5 – ₹50",    labelEn:"Stationery", labelTa:"எழுதுபொருட்கள்" },
+  { en:"Art Supplies",     ta:"கலை பொருட்கள்",              cat:"stationery", icon:"images/art.png", price:"₹40 – ₹200",  labelEn:"Stationery", labelTa:"எழுதுபொருட்கள்" },
+  { en:"Detergents",       ta:"சோப்பு மற்றும் டிடர்ஜென்ட்", cat:"household",  icon:"images/detergent.jpg", price:"₹50 – ₹250", labelEn:"Household",  labelTa:"வீட்டு பொருட்கள்" },
+  { en:"Cleaning Items",   ta:"சுத்தப்படுத்தும் பொருட்கள்", cat:"household",  icon:"images/harpic.jpg", price:"₹30 – ₹180", labelEn:"Household",  labelTa:"வீட்டு பொருட்கள்" },
 ];
 
 let currentLang = 'en';
@@ -650,7 +651,7 @@ function renderProducts(filter) {
   const filtered = filter === 'all' ? products : products.filter(p => p.cat === filter);
   grid.innerHTML = filtered.map(p => `
     <div class="product-card">
-      <div class="product-img">${p.icon}</div>
+      <div class="product-img"><img src="${p.icon}" alt="${p.en}" style="width:100%;height:140px;object-fit:cover;"></div>
       <div class="product-info">
         <div class="product-name">${currentLang === 'ta' ? p.ta : p.en}</div>
         <div class="product-cat">${currentLang === 'ta' ? p.labelTa : p.labelEn}</div>
