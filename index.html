@@ -394,7 +394,7 @@
   .fade-up { opacity: 0; transform: translateY(28px); transition: opacity 0.65s ease, transform 0.65s ease; }
   .fade-up.visible { opacity: 1; transform: translateY(0); }
 
-  @media (max-width: 768px) {
+  @media (max-width: 700px) {
     .hamburger { display: flex; }
     .nav-links { display: none; flex-direction: column; position: absolute; top: 68px; left: 0; width: 100%; background: var(--cream); border-bottom: 1.5px solid var(--border); padding: 20px 5%; gap: 18px; }
     .nav-links.open { display: flex; }
@@ -427,13 +427,13 @@
     <li><a href="#contact"  data-en="Contact"  data-ta="தொடர்பு">Contact</a></li>
   </ul>
   <div class="nav-right">
-    
+    <button class="nav-theme-btn" onclick="toggleThemePanel()" title="Change Theme">🎨</button>
     <div class="lang-toggle">
       <button class="lang-btn active" id="btnEn" onclick="setLang('en')">EN</button>
+      <div class="lang-sep"></div>
       <button class="lang-btn" id="btnTa" onclick="setLang('ta')">தமிழ்</button>
     </div>
     <button class="hamburger" id="hamburger" aria-label="Menu">
-      <button class="nav-theme-btn" onclick="toggleThemePanel()" title="Change Theme">🎨</button>
       <span></span><span></span><span></span>
     </button>
   </div>
