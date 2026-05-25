@@ -409,6 +409,29 @@
     .lang-toggle { transform: scale(0.85); transform-origin: right center; }
     .lang-toggle button { padding: 4px 4px; font-size: 8px; }
   }
+  .game-banner {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 6% 18px;
+}
+.game-banner-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--orange);
+  color: white;
+  text-decoration: none;
+  font-family: 'Lato', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 10px 22px;
+  border-radius: 50px;
+  box-shadow: 0 4px 14px rgba(232,114,42,0.28);
+  transition: background 0.2s, transform 0.15s;
+}
+.game-banner-btn:hover { background: #d4601a; transform: translateY(-2px); }
+.game-banner-btn span { font-size: 18px; }
 </style>
 </head>
 <body>
@@ -425,6 +448,7 @@
     <li><a href="#gallery"  data-en="Gallery"  data-ta="படங்கள்">Gallery</a></li>
     <li><a href="#about"    data-en="About"    data-ta="எங்களைப் பற்றி">About</a></li>
     <li><a href="#contact"  data-en="Contact"  data-ta="தொடர்பு">Contact</a></li>
+    <li><a href="game.html" data-en="Game 🎮" data-ta="விளையாட்டு 🎮">Game 🎮</a></li>
   </ul>
   <div class="nav-right">
     <button class="nav-theme-btn" onclick="toggleThemePanel()" title="Change Theme">🎨</button>
@@ -456,6 +480,12 @@
     <div class="badge"><span class="badge-icon">💚</span><div class="badge-text" data-en="Fresh &amp; Quality" data-ta="புதிய &amp; தரமான">Fresh &amp; Quality</div></div>
   </div>
 </section>
+<div class="game-banner">
+  <a href="game.html" class="game-banner-btn">
+    <span>🎮</span>
+    <span data-en="Play Store Game" data-ta="விளையாட்டு விளையாடு">Play Store Game</span>
+  </a>
+</div>
 
 <!-- PRODUCTS -->
 <section id="products">
