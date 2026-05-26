@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Match – Sreesathya Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;700&family=Noto+Sans+Tamil:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FDF6EC;
+    --warm-white: #FEFAF4;
+    --brown-dark: #3B2A1A;
+    --brown-mid: #7A4F2D;
+    --orange: #E8722A;
+    --orange-light: #F9A05A;
+    --green: #4A7C59;
+    --border: #E2CBA8;
+    --text-body: #5A3E28;
+    --text-muted: #9A7A5A;
+    --card-back: #7A4F2D;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Lato', sans-serif;
+    background: var(--cream);
+    color: var(--brown-dark);
+    min-height: 100vh;
+  }
+
+  /* ── NAV ── */
+  nav {
+    background: rgba(253,246,236,0.97);
+    border-bottom: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 5%; height: 62px;
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(6px);
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; font-weight: 700;
+    color: var(--brown-dark);
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none;
+  }
+  .nav-logo .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--orange); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: #fff;
+  }
+  .back-btn {
+    display: flex; align-items: center; gap: 8px;
+    text-decoration: none;
+    background: var(--orange); color: #fff;
+    padding: 8px 18px; border-radius: 3px;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.04em;
+    transition: background 0.2s;
+  }
+  .back-btn:hover { background: #cf5f1e; }
+
+  /* ── HERO BANNER ── */
+  .game-hero {
+    background: linear-gradient(135deg, #3B2A1A 0%, #7A4F2D 100%);
+    color: #fff;
+    text-align: center;
+    padding: 40px 5% 36px;
+  }
+  .game-hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 5vw, 40px);
+    margin-bottom: 8px;
+  }
+  .game-hero h1 span { color: var(--orange-light); }
+  .game-hero p { font-size: 15px; color: #C9AA88; margin-bottom: 24px; }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    display: flex; justify-content: center; gap: 32px; flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .stat-box {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px; padding: 10px 24px; text-align: center;
+  }
+  .stat-val { font-size: 26px; font-weight: 700; color: var(--orange-light); font-family: 'Playfair Display', serif; }
+  .stat-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #A88866; margin-top: 2px; }
+
+  /* ── DIFFICULTY + CONTROLS ── */
+  .controls {
+    display: flex; align-items: center; justify-content: center;
+    gap: 12px; flex-wrap: wrap;
+    padding: 22px 5%;
+    background: var(--warm-white);
+    border-bottom: 1.5px solid var(--border);
+  }
+  .diff-btn {
+    padding: 8px 20px; border-radius: 2px;
+    border: 1.5px solid var(--border);
+    background: transparent; color: var(--text-body);
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    font-family: inherit; transition: all 0.2s;
+  }
+  .diff-btn:hover, .diff-btn.active {
+    background: var(--orange); border-color: var(--orange); color: #fff;
+  }
+  .ctrl-sep { width: 1.5px; height: 28px; background: var(--border); }
+  .restart-btn {
+    padding: 8px 20px; border-radius: 2px;
+    background: var(--green); color: #fff;
+    border: none; font-size: 13px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+    display: flex; align-items: center; gap: 6px;
+    transition: background 0.2s;
+  }
+  .restart-btn:hover { background: #3a6347; }
+
+  /* ── GAME BOARD ── */
+  .board-wrap {
+    padding: 36px 5% 60px;
+    display: flex; flex-direction: column; align-items: center; gap: 28px;
+  }
+  .board {
+    display: grid;
+    gap: 12px;
+    width: 100%;
+    max-width: 640px;
+  }
+  .board.easy   { grid-template-columns: repeat(4, 1fr); }
+  .board.medium { grid-template-columns: repeat(4, 1fr); }
+  .board.hard   { grid-template-columns: repeat(6, 1fr); }
+
+  /* ── CARD ── */
+  .card {
+    aspect-ratio: 1;
+    perspective: 600px;
+    cursor: pointer;
+  }
+  .card-inner {
+    width: 100%; height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.45s cubic-bezier(.4,0,.2,1);
+    border-radius: 8px;
+  }
+  .card.flipped .card-inner,
+  .card.matched .card-inner { transform: rotateY(180deg); }
+
+  .card-front, .card-back {
+    position: absolute; inset: 0;
+    border-radius: 8px;
+    backface-visibility: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-back {
+    background: var(--card-back);
+    border: 2px solid #C49A6C;
+    font-size: clamp(20px, 5vw, 30px);
+    color: #C49A6C;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    flex-direction: column; gap: 4px;
+  }
+  .card-back-logo { font-size: clamp(18px, 4vw, 26px); }
+  .card-back-text { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: #A07040; }
+
+  .card-front {
+    background: var(--warm-white);
+    border: 2px solid var(--border);
+    transform: rotateY(180deg);
+    font-size: clamp(28px, 7vw, 46px);
+    flex-direction: column; gap: 6px;
+  }
+  .card-front .card-label {
+    font-size: clamp(8px, 1.8vw, 11px);
+    font-weight: 700; color: var(--text-muted);
+    letter-spacing: 0.04em; text-align: center;
+    padding: 0 4px;
+  }
+
+  .card.matched .card-front {
+    background: #EAF7EE;
+    border-color: var(--green);
+  }
+  .card.matched .card-front .card-label { color: var(--green); }
+
+  .card:not(.flipped):not(.matched):hover .card-inner {
+    transform: rotateY(15deg);
+    box-shadow: 0 8px 24px rgba(122,79,45,0.18);
+  }
+
+  /* ── WIN OVERLAY ── */
+  .win-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(30,18,8,0.82);
+    align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .win-overlay.show { display: flex; }
+  .win-box {
+    background: var(--cream);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 40px 48px;
+    text-align: center;
+    max-width: 380px;
+    animation: popIn 0.4s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn { from{transform:scale(0.6);opacity:0} to{transform:scale(1);opacity:1} }
+  .win-emoji { font-size: 60px; display: block; margin-bottom: 12px; }
+  .win-box h2 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--brown-dark); margin-bottom: 8px; }
+  .win-box p { color: var(--text-muted); font-size: 15px; margin-bottom: 8px; }
+  .win-score { font-size: 18px; font-weight: 700; color: var(--orange); margin-bottom: 24px; }
+  .win-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .win-play-again {
+    background: var(--orange); color: #fff;
+    border: none; padding: 12px 28px; border-radius: 3px;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    font-family: inherit; transition: background 0.2s;
+  }
+  .win-play-again:hover { background: #cf5f1e; }
+  .win-home {
+    background: transparent;
+    border: 2px solid var(--border); color: var(--brown-mid);
+    padding: 12px 28px; border-radius: 3px;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    font-family: inherit; transition: all 0.2s;
+    text-decoration: none; display: inline-block;
+  }
+  .win-home:hover { border-color: var(--orange); color: var(--orange); }
+
+  /* ── TIMER PULSE ── */
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
+  .pulse { animation: pulse 0.4s ease; }
+
+  @media (max-width: 480px) {
+    .board.hard { grid-template-columns: repeat(4, 1fr); }
+    .controls { gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <span class="logo-icon">🌿</span>
+    Sreesathya Store
+  </a>
+  <a href="index.html" class="back-btn">← Back to Store</a>
+</nav>
+
+<!-- HERO -->
+<div class="game-hero">
+  <h1>🧩 Memory <span>Match</span></h1>
+  <p>Match all the grocery & stationery pairs to win!</p>
+  <div class="stats-bar">
+    <div class="stat-box">
+      <div class="stat-val" id="timerVal">0</div>
+      <div class="stat-lbl">Seconds</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="movesVal">0</div>
+      <div class="stat-lbl">Moves</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="pairsVal">0</div>
+      <div class="stat-lbl">Pairs Left</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="bestVal">–</div>
+      <div class="stat-lbl">Best (s)</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <span style="font-size:13px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;text-transform:uppercase;">Difficulty:</span>
+  <button class="diff-btn active" onclick="setDiff('easy',this)">Easy (8 pairs)</button>
+  <button class="diff-btn" onclick="setDiff('medium',this)">Medium (12 pairs)</button>
+  <button class="diff-btn" onclick="setDiff('hard',this)">Hard (18 pairs)</button>
+  <div class="ctrl-sep"></div>
+  <button class="restart-btn" onclick="startGame()">🔄 Restart</button>
+</div>
+
+<!-- BOARD -->
+<div class="board-wrap">
+  <div class="board easy" id="board"></div>
+</div>
+
+<!-- WIN OVERLAY -->
+<div class="win-overlay" id="winOverlay">
+  <div class="win-box">
+    <span class="win-emoji">🎉</span>
+    <h2>You Won!</h2>
+    <p>Excellent memory!</p>
+    <div class="win-score" id="winScore"></div>
+    <div class="win-btns">
+      <button class="win-play-again" onclick="closeWin()">Play Again</button>
+      <a href="index.html" class="win-home">🏪 Back to Store</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALL_CARDS = [
+  { emoji:'🌾', label:'Rice' },
+  { emoji:'🥦', label:'Vegetable' },
+  { emoji:'🌶️', label:'Chilli' },
+  { emoji:'🫙', label:'Oil' },
+  { emoji:'🧅', label:'Onion' },
+  { emoji:'🧄', label:'Garlic' },
+  { emoji:'🍅', label:'Tomato' },
+  { emoji:'🥥', label:'Coconut' },
+  { emoji:'🍪', label:'Biscuit' },
+  { emoji:'🍫', label:'Chocolate' },
+  { emoji:'🥤', label:'Drink' },
+  { emoji:'🍬', label:'Candy' },
+  { emoji:'📓', label:'Notebook' },
+  { emoji:'✏️', label:'Pencil' },
+  { emoji:'🖊️', label:'Pen' },
+  { emoji:'📐', label:'Ruler' },
+  { emoji:'🎨', label:'Colours' },
+  { emoji:'📌', label:'Pin' },
+];
+
+const DIFF = { easy:8, medium:12, hard:18 };
+let diff = 'easy';
+let cards = [], flipped = [], matched = 0, moves = 0, timer = 0, timerInt = null, started = false, locked = false;
+
+function setDiff(d, btn) {
+  diff = d;
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const board = document.getElementById('board');
+  board.className = 'board ' + d;
+  startGame();
+}
+
+function shuffle(arr) {
+  for (let i = arr.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function startGame() {
+  clearInterval(timerInt);
+  flipped = []; matched = 0; moves = 0; timer = 0; started = false; locked = false;
+  cards = shuffle([...ALL_CARDS].slice(0, DIFF[diff]));
+  cards = shuffle([...cards, ...cards.map(c => ({...c}))]);
+  updateStats();
+  renderBoard();
+  document.getElementById('winOverlay').classList.remove('show');
+}
+
+function renderBoard() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  cards.forEach((card, i) => {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.dataset.index = i;
+    el.innerHTML = `
+      <div class="card-inner">
+        <div class="card-back">
+          <span class="card-back-logo">🌿</span>
+          <span class="card-back-text">Sreesathya</span>
+        </div>
+        <div class="card-front">
+          <span>${card.emoji}</span>
+          <span class="card-label">${card.label}</span>
+        </div>
+      </div>`;
+    el.addEventListener('click', () => flipCard(el, i));
+    board.appendChild(el);
+  });
+}
+
+function flipCard(el, i) {
+  if (locked || el.classList.contains('flipped') || el.classList.contains('matched')) return;
+  if (!started) { started = true; timerInt = setInterval(() => { timer++; document.getElementById('timerVal').textContent = timer; }, 1000); }
+  el.classList.add('flipped');
+  flipped.push({ el, i });
+  if (flipped.length === 2) {
+    locked = true; moves++;
+    const [a, b] = flipped;
+    if (cards[a.i].emoji === cards[b.i].emoji) {
+      setTimeout(() => {
+        a.el.classList.add('matched'); b.el.classList.add('matched');
+        matched++;
+        flipped = []; locked = false;
+        updateStats();
+        if (matched === DIFF[diff]) endGame();
+      }, 400);
+    } else {
+      setTimeout(() => {
+        a.el.classList.remove('flipped'); b.el.classList.remove('flipped');
+        flipped = []; locked = false;
+        updateStats();
+      }, 900);
+    }
+    updateStats();
+  }
+}
+
+function updateStats() {
+  document.getElementById('movesVal').textContent = moves;
+  document.getElementById('pairsVal').textContent = DIFF[diff] - matched;
+  const best = localStorage.getItem('ss-best-' + diff);
+  document.getElementById('bestVal').textContent = best || '–';
+}
+
+function endGame() {
+  clearInterval(timerInt);
+  const best = localStorage.getItem('ss-best-' + diff);
+  if (!best || timer < parseInt(best)) {
+    localStorage.setItem('ss-best-' + diff, timer);
+    document.getElementById('bestVal').textContent = timer;
+  }
+  document.getElementById('winScore').textContent = `⏱ ${timer}s · 🎯 ${moves} moves`;
+  setTimeout(() => document.getElementById('winOverlay').classList.add('show'), 400);
+}
+
+function closeWin() {
+  document.getElementById('winOverlay').classList.remove('show');
+  startGame();
+}
+
+startGame();
+</script>
+</body>
+</html>
