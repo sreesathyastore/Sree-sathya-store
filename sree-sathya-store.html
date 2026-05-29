@@ -6,6 +6,8 @@
   <title>Sree Sathya Store — Grocery & Stationery</title>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
   <style>
     /* ══════════════════════════════════════════
        🔑 CONFIG — Replace with YOUR Supabase keys
@@ -1386,8 +1388,33 @@ function openCart()  { document.getElementById('cart-sidebar').classList.add('op
 function closeCart() { document.getElementById('cart-sidebar').classList.remove('open'); document.getElementById('cart-overlay').classList.remove('open'); }
 
 function handleCheckout() {
-  showToast('🎉 Order placed! (Connect Razorpay to take payments)');
-  closeCart();
+  const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const delC  = sub >= 500 ? 0 : 30;
+  const total = sub + delC;
+
+  const options = {
+    key: "YOUR_RAZORPAY_KEY_ID",   // ← paste your Key ID here
+    amount: total * 100,            // Razorpay uses paise
+    currency: "INR",
+    name: "Sree Sathya Store",
+    description: "Grocery & Stationery Order",
+    image: "",                      // optional: logo URL
+    handler: function(response) {
+      alert("✅ Order placed! Payment ID: " + response.razorpay_payment_id);
+      clearCart();
+      closeCart();
+    },
+    prefill: {
+      name: "", email: "", contact: ""
+    },
+    notes: {
+      address: "Sree Sathya Store"
+    },
+    theme: { color: "#2d7a3a" }
+  };
+
+  const rzp = new Razorpay(options);
+  rzp.open();
 }
 
 // ── PRODUCT MODAL ────────────────────────────────────
