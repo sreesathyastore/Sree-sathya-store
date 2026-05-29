@@ -1389,7 +1389,7 @@ function closeCart() { document.getElementById('cart-sidebar').classList.remove(
 
 function handleCheckout() {
   const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const delC  = sub >= 500 ? 0 : 30;
+  const delC  = sub >= 500 ? 0 : 0;
   const total = sub + delC;
 
   const options = {
