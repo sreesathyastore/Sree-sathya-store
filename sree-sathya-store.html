@@ -1038,7 +1038,7 @@ const catEmoji = {
 const fmt = (n) => '₹' + Number(n).toLocaleString('en-IN');
 
 // Delivery charge logic
-const delivery = (sub) => sub >= 500 ? 0 : 30;
+const delivery = (sub) => sub >= 500 ? 0 : 0;
 
 // ── EMOJI fallback per category ─────────────────────
 function categoryEmoji(cat) {
