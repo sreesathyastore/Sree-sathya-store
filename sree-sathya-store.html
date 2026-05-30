@@ -955,9 +955,23 @@
       <span>Total Amount</span>
       <span id="cart-total">₹0</span>
     </div>
-    <button class="checkout-btn" onclick="handleCheckout()">
-      🛒 Place Order — <span id="checkout-total">₹0</span>
-    </button>
+    <button class="checkout-btn" onclick="handleCheckout()"
+  style="margin-bottom:0.5rem;">
+  💳 Pay with Razorpay
+</button>
+
+<button onclick="openUpiCheckout()"
+  style="width:100%; background:#5f259f; border:none; color:#fff;
+         padding:0.9rem 1rem; font-family:'Baloo 2',cursive;
+         font-size:1rem; font-weight:700; letter-spacing:0.02em;
+         cursor:pointer; border-radius:50px; margin-bottom:0.6rem;
+         box-shadow:0 4px 14px rgba(95,37,159,0.3);
+         display:flex; align-items:center; justify-content:center; gap:0.5rem;
+         transition:background 0.2s;">
+  📱 Pay via PhonePe / UPI — <span id="upi-btn-total">₹0</span>
+</button>
+
+<button class="clear-btn" onclick="clearCart()">Clear Cart</button>
     <button class="clear-btn" onclick="clearCart()">Clear Cart</button>
   </div>
 </aside>
@@ -1503,6 +1517,328 @@ document.addEventListener('keydown', e => {
 // ── INIT ─────────────────────────────────────────────
 updateCartUI();
 loadProducts();
+</script>
+<div id="upi-overlay"
+  style="position:fixed; inset:0; z-index:500;
+         background:rgba(0,0,0,0.55); backdrop-filter:blur(4px);
+         display:none; align-items:center; justify-content:center; padding:1.5rem;">
+
+  <div style="background:#fff; border-radius:16px; max-width:420px; width:100%;
+              max-height:90vh; overflow-y:auto;
+              box-shadow:0 24px 60px rgba(0,0,0,0.2);">
+
+    <!-- Header -->
+    <div style="background:#5f259f; padding:1.2rem 1.5rem;
+                border-radius:16px 16px 0 0;
+                display:flex; align-items:center; justify-content:space-between;">
+      <div>
+        <h2 style="font-family:'Baloo 2',cursive; color:#fff;
+                   font-size:1.2rem; margin:0;">Pay via UPI</h2>
+        <p style="color:rgba(255,255,255,0.75); font-size:0.72rem; margin:0.2rem 0 0;">
+          PhonePe · GPay · BHIM · Paytm — Zero Commission
+        </p>
+      </div>
+      <button onclick="closeUpiCheckout()"
+        style="background:rgba(255,255,255,0.15); border:none; color:#fff;
+               width:32px; height:32px; border-radius:50%; font-size:1rem;
+               cursor:pointer; display:flex; align-items:center; justify-content:center;">✕</button>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:1.5rem;">
+
+      <!-- Step 1: Details -->
+      <p style="font-family:'Baloo 2',cursive; font-weight:700;
+                font-size:0.95rem; margin:0 0 0.7rem; color:#1e1c18;">
+        1. Your Details
+      </p>
+
+      <div style="display:flex; flex-direction:column; gap:0.6rem; margin-bottom:1.2rem;">
+        <input id="upi-name" type="text" placeholder="Your full name *"
+          style="width:100%; padding:0.6rem 0.9rem; border:1.5px solid #e2ddd6;
+                 border-radius:8px; font-family:'Nunito',sans-serif;
+                 font-size:0.88rem; outline:none; color:#1e1c18;
+                 transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#5f259f'"
+          onblur="this.style.borderColor='#e2ddd6'"/>
+
+        <input id="upi-phone" type="tel" placeholder="Phone / WhatsApp number *" maxlength="10"
+          style="width:100%; padding:0.6rem 0.9rem; border:1.5px solid #e2ddd6;
+                 border-radius:8px; font-family:'Nunito',sans-serif;
+                 font-size:0.88rem; outline:none; color:#1e1c18;
+                 transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#5f259f'"
+          onblur="this.style.borderColor='#e2ddd6'"/>
+
+        <textarea id="upi-address" placeholder="Delivery address (optional)" rows="2"
+          style="width:100%; padding:0.6rem 0.9rem; border:1.5px solid #e2ddd6;
+                 border-radius:8px; font-family:'Nunito',sans-serif;
+                 font-size:0.88rem; outline:none; resize:none; color:#1e1c18;
+                 transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#5f259f'"
+          onblur="this.style.borderColor='#e2ddd6'"></textarea>
+      </div>
+
+      <!-- Step 2: Amount -->
+      <p style="font-family:'Baloo 2',cursive; font-weight:700;
+                font-size:0.95rem; margin:0 0 0.7rem; color:#1e1c18;">
+        2. Order Total
+      </p>
+      <div id="upi-amount-box"
+        style="background:#f3eeff; border-radius:8px; padding:0.8rem 1rem;
+               margin-bottom:1.2rem; display:flex; justify-content:space-between;
+               align-items:center;">
+        <span style="font-size:0.85rem; color:#5f259f;">Amount to pay</span>
+        <span id="upi-amount-display"
+          style="font-family:'Baloo 2',cursive; font-size:1.4rem;
+                 font-weight:800; color:#5f259f;">₹0</span>
+      </div>
+
+      <!-- Step 3: Pay -->
+      <p style="font-family:'Baloo 2',cursive; font-weight:700;
+                font-size:0.95rem; margin:0 0 0.7rem; color:#1e1c18;">
+        3. Open Your UPI App &amp; Pay
+      </p>
+
+      <div style="background:#f3eeff; border:1.5px solid #5f259f;
+                  border-radius:12px; padding:1rem; text-align:center; margin-bottom:1rem;">
+        <p style="font-size:0.82rem; color:#7c7568; margin:0 0 0.4rem;">
+          Send payment to UPI ID:
+        </p>
+        <p style="font-family:'Baloo 2',cursive; font-size:1.1rem;
+                  font-weight:800; color:#5f259f; margin:0 0 0.8rem;"
+           id="upi-id-display"></p>
+
+        <button onclick="triggerUpiApp()"
+          style="width:100%; background:#5f259f; color:#fff; border:none;
+                 padding:0.8rem; border-radius:50px;
+                 font-family:'Baloo 2',cursive; font-weight:700;
+                 font-size:0.95rem; cursor:pointer;
+                 box-shadow:0 4px 12px rgba(95,37,159,0.3);">
+          📱 Open PhonePe / GPay / BHIM
+        </button>
+        <p style="font-size:0.7rem; color:#7c7568; margin:0.5rem 0 0;">
+          Opens your UPI app with amount pre-filled
+        </p>
+      </div>
+
+      <!-- Step 4: UTR -->
+      <p style="font-family:'Baloo 2',cursive; font-weight:700;
+                font-size:0.95rem; margin:0 0 0.5rem; color:#1e1c18;">
+        4. Enter Transaction ID after paying
+      </p>
+      <input id="upi-txn" type="text"
+        placeholder="UPI Transaction ID / UTR number"
+        style="width:100%; padding:0.6rem 0.9rem; border:1.5px solid #5f259f;
+               border-radius:8px; font-family:'Nunito',sans-serif;
+               font-size:0.85rem; outline:none; margin-bottom:0.4rem; color:#1e1c18;"/>
+      <p style="font-size:0.7rem; color:#7c7568; margin:0 0 1.2rem;">
+        PhonePe → History → tap payment → copy 12-digit UTR number
+      </p>
+
+      <!-- Confirm -->
+      <button onclick="confirmUpiOrder()"
+        style="width:100%; background:#2d7a3a; border:none; color:#fff;
+               padding:0.95rem; font-family:'Baloo 2',cursive;
+               font-size:1rem; font-weight:700; border-radius:50px;
+               cursor:pointer; box-shadow:0 4px 14px rgba(45,122,58,0.3);">
+        ✅ Confirm Order
+      </button>
+      <p style="font-size:0.7rem; color:#7c7568; text-align:center; margin:0.5rem 0 0;">
+        We'll verify your payment and confirm the order
+      </p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ SUCCESS MODAL ══ -->
+<div id="upi-success-overlay"
+  style="position:fixed; inset:0; z-index:600;
+         background:rgba(0,0,0,0.55); backdrop-filter:blur(4px);
+         display:none; align-items:center; justify-content:center; padding:1.5rem;">
+  <div style="background:#fff; border-radius:16px; max-width:360px; width:100%;
+              padding:2rem; text-align:center; box-shadow:0 24px 60px rgba(0,0,0,0.2);">
+    <div style="font-size:4rem; margin-bottom:0.8rem;">🎉</div>
+    <h2 style="font-family:'Baloo 2',cursive; font-size:1.4rem;
+               color:#2d7a3a; margin:0 0 0.3rem;">Order Confirmed!</h2>
+    <p style="color:#7c7568; font-size:0.85rem; margin:0 0 1rem;">
+      Thank you for shopping at<br>
+      <strong style="color:#1e1c18;">Sree Sathya Store</strong>
+    </p>
+    <div id="upi-success-details"
+      style="background:#e8f5eb; border-radius:8px; padding:0.9rem;
+             font-size:0.82rem; color:#2d7a3a; margin-bottom:1rem;
+             text-align:left; line-height:1.9;">
+    </div>
+    <a id="upi-whatsapp-link" href="#" target="_blank"
+      style="display:block; background:#25D366; color:#fff; padding:0.75rem;
+             border-radius:50px; text-decoration:none;
+             font-family:'Baloo 2',cursive; font-weight:700;
+             font-size:0.88rem; margin-bottom:0.7rem;">
+      📲 Send Order to WhatsApp
+    </a>
+    <button onclick="closeUpiSuccess()"
+      style="width:100%; background:#f6f4f0; border:none; color:#7c7568;
+             padding:0.7rem; border-radius:50px;
+             font-family:'Nunito',sans-serif; font-size:0.85rem; cursor:pointer;">
+      Continue Shopping
+    </button>
+  </div>
+</div>
+
+
+<script>
+// ════════════════════════════════════════════════════════════
+//  ⚙️  YOUR DETAILS — change only these 2 lines
+// ════════════════════════════════════════════════════════════
+const YOUR_UPI_ID       = "ramprasathr17-1@okaxis";      // ← Your PhonePe UPI ID
+const YOUR_WHATSAPP_NO  = "917094148820";       // ← 91 + your 10-digit number
+// ════════════════════════════════════════════════════════════
+
+// Show UPI ID in modal
+document.getElementById('upi-id-display').textContent = YOUR_UPI_ID;
+
+// Open UPI checkout modal
+function openUpiCheckout() {
+  if (cart.length === 0) return;
+  closeCart();
+
+  const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const total = sub + delivery(sub);
+
+  document.getElementById('upi-amount-display').textContent = fmt(total);
+  document.getElementById('upi-btn-total').textContent = fmt(total);
+  document.getElementById('upi-overlay').style.display = 'flex';
+}
+
+function closeUpiCheckout() {
+  document.getElementById('upi-overlay').style.display = 'none';
+}
+
+// Deep-link opens PhonePe / GPay / BHIM with amount pre-filled
+function triggerUpiApp() {
+  const name  = document.getElementById('upi-name').value.trim() || 'Customer';
+  const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const total = sub + delivery(sub);
+
+  const upiUrl =
+    `upi://pay?pa=${encodeURIComponent(YOUR_UPI_ID)}` +
+    `&pn=${encodeURIComponent('Sree Sathya Store')}` +
+    `&am=${total.toFixed(2)}` +
+    `&cu=INR` +
+    `&tn=${encodeURIComponent('Order - Sree Sathya Store - ' + name)}`;
+
+  window.location.href = upiUrl;
+
+  setTimeout(() => {
+    showToast('📱 If app did not open, pay manually to: ' + YOUR_UPI_ID);
+  }, 1800);
+}
+
+// Generate order number
+function generateUpiOrderNo() {
+  const d = new Date();
+  return 'SSS' + String(d.getMonth()+1).padStart(2,'0')
+    + String(d.getDate()).padStart(2,'0')
+    + '-' + Math.floor(1000 + Math.random() * 9000);
+}
+
+// Confirm order — saves to Supabase + shows WhatsApp
+async function confirmUpiOrder() {
+  const name    = document.getElementById('upi-name').value.trim();
+  const phone   = document.getElementById('upi-phone').value.trim();
+  const address = document.getElementById('upi-address').value.trim();
+  const txnId   = document.getElementById('upi-txn').value.trim();
+
+  if (!name)  { alert('Please enter your name.'); return; }
+  if (!phone || phone.length < 10) { alert('Please enter a valid 10-digit phone number.'); return; }
+
+  const sub    = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const delC   = delivery(sub);
+  const total  = sub + delC;
+  const orderNo = generateUpiOrderNo();
+
+  // Save to Supabase (orders table must exist — run orders-table.sql)
+  try {
+    await sb.from('orders').insert([{
+      order_number:     orderNo,
+      customer_name:    name,
+      customer_phone:   phone,
+      customer_address: address || null,
+      items:            cart,
+      subtotal:         sub,
+      delivery_charge:  delC,
+      total:            total,
+      payment_method:   'PhonePe UPI',
+      payment_status:   txnId ? 'paid' : 'pending',
+      upi_txn_id:       txnId || null,
+      order_status:     'new'
+    }]);
+  } catch(e) {
+    console.warn('Supabase order save failed:', e.message);
+    // Continue anyway — WhatsApp notification still works
+  }
+
+  closeUpiCheckout();
+
+  // Build WhatsApp message for you (the owner)
+  const itemsText = cart
+    .map(i => `• ${i.name} ×${i.qty} = ${fmt(i.price * i.qty)}`)
+    .join('%0A');
+
+  const msg =
+    `🛒 *New Order — Sree Sathya Store*%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `📋 Order No: *${orderNo}*%0A` +
+    `👤 Name: *${name}*%0A` +
+    `📞 Phone: *${phone}*%0A` +
+    (address ? `📍 Address: ${address}%0A` : '') +
+    `━━━━━━━━━━━━━━━%0A` +
+    `*Items:*%0A${itemsText}%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `📦 Delivery: ${delC === 0 ? 'FREE' : fmt(delC)}%0A` +
+    `💰 *Total: ${fmt(total)}*%0A` +
+    `💳 Payment: PhonePe UPI%0A` +
+    (txnId ? `🔖 UTR/Txn ID: *${txnId}*` : `⏳ Payment: Pending verification`);
+
+  // Show success screen
+  document.getElementById('upi-success-details').innerHTML = `
+    <div style="display:flex; justify-content:space-between;">
+      <span>Order No.</span><strong>${orderNo}</strong>
+    </div>
+    <div style="display:flex; justify-content:space-between;">
+      <span>Name</span><strong>${name}</strong>
+    </div>
+    <div style="display:flex; justify-content:space-between;">
+      <span>Total</span><strong>${fmt(total)}</strong>
+    </div>
+    <div style="display:flex; justify-content:space-between;">
+      <span>Payment</span>
+      <strong>${txnId ? '✅ Paid (UPI)' : '⏳ Pending'}</strong>
+    </div>
+  `;
+
+  document.getElementById('upi-whatsapp-link').href =
+    `https://wa.me/${YOUR_WHATSAPP_NO}?text=${msg}`;
+
+  document.getElementById('upi-success-overlay').style.display = 'flex';
+  clearCart();
+}
+
+function closeUpiSuccess() {
+  document.getElementById('upi-success-overlay').style.display = 'none';
+}
+
+// Keep UPI total in sync when cart changes
+const _origUpdateCartUI = updateCartUI;
+updateCartUI = function() {
+  _origUpdateCartUI();
+  const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const total = sub + delivery(sub);
+  const el = document.getElementById('upi-btn-total');
+  if (el) el.textContent = fmt(total);
+};
 </script>
 </body>
 </html>
