@@ -1517,7 +1517,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ── INIT ─────────────────────────────────────────────
-updateCartUI();
+try { updateCartUI(); } catch(e) { console.warn('Cart UI error:', e); }
 loadProducts();
 </script> 
 <div id="upi-overlay"
