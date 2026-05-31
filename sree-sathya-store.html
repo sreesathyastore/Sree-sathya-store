@@ -1611,14 +1611,14 @@ loadProducts();
                   font-weight:800; color:#5f259f; margin:0 0 0.8rem;"
            id="upi-id-display"></p>
 
-        <button onclick="triggerUpiApp()"
-          style="width:100%; background:#5f259f; color:#fff; border:none;
-                 padding:0.8rem; border-radius:50px;
-                 font-family:'Baloo 2',cursive; font-weight:700;
-                 font-size:0.95rem; cursor:pointer;
-                 box-shadow:0 4px 12px rgba(95,37,159,0.3);">
-          📱 Open PhonePe / GPay / BHIM
-        </button>
+        <a id="upi-direct-link" href="#"
+          style="display:block; width:100%; background:#5f259f; color:#fff;
+                 padding:0.8rem; border-radius:50px; text-align:center;
+                 font-family:'Baloo 2',cursive; font-weight:700; font-size:0.95rem;
+                 text-decoration:none; box-shadow:0 4px 12px rgba(95,37,159,0.3);"
+                  onclick="setUpiLink(event)">
+            📱 Open PhonePe / GPay / BHIM
+        </a>
         <p style="font-size:0.7rem; color:#7c7568; margin:0.5rem 0 0;">
           Opens your UPI app with amount pre-filled
         </p>
@@ -1731,11 +1731,17 @@ function triggerUpiApp() {
     `&cu=INR` +
     `&tn=${encodeURIComponent('Order - Sree Sathya Store - ' + name)}`;
 
-  window.location.href = upiUrl;
+  // ✅ Use <a> tag click — works on all mobile browsers
+  const a = document.createElement('a');
+  a.href = upiUrl;
+  a.setAttribute('target', '_blank');
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 
   setTimeout(() => {
-    showToast('📱 If app did not open, pay manually to: ' + YOUR_UPI_ID);
-  }, 1800);
+    showToast('If app did not open, pay manually to: ' + YOUR_UPI_ID);
+  }, 2000);
 }
 
 // Generate order number
@@ -1844,6 +1850,24 @@ updateCartUI = function() {
   const el = document.getElementById('upi-btn-total');
   if (el) el.textContent = fmt(total);
 };
+function setUpiLink(e) {
+  const name  = document.getElementById('upi-name').value.trim() || 'Customer';
+  const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const total = sub + delivery(sub);
+
+  const upiUrl =
+    `upi://pay?pa=${encodeURIComponent(YOUR_UPI_ID)}` +
+    `&pn=${encodeURIComponent('Sree Sathya Store')}` +
+    `&am=${total.toFixed(2)}` +
+    `&cu=INR` +
+    `&tn=${encodeURIComponent('Order - Sree Sathya Store - ' + name)}`;
+
+  e.currentTarget.href = upiUrl;
+  // Let the browser naturally follow the link — most reliable on mobile
+  setTimeout(() => {
+    showToast('If app did not open, pay manually to: ' + YOUR_UPI_ID);
+  }, 2000);
+}
 </script>
 
 </body>
