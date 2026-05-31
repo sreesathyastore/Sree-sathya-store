@@ -1413,18 +1413,21 @@ function closeCart() { document.getElementById('cart-sidebar').classList.remove(
 
 function handleCheckout() {
   const sub    = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const delC   = sub >= 500 ? 0 : 30;
+  const delC   = sub >= 500 ? 0 : 0;
   const total  = sub + delC;
   // Ask customer name and phone before payment
-  const name  = document.getElementById('upi-name')?.value.trim() ||
-                prompt('Your name:');
-  const phone = document.getElementById('upi-phone')?.value.trim() ||
-                prompt('Your phone number:');
+  // Reuse UPI form fields if already filled
+  const existingName  = document.getElementById('upi-name')?.value.trim();
+  const existingPhone = document.getElementById('upi-phone')?.value.trim();
 
-  if (!name || !phone) {
-    showToast('Please enter your name and phone to continue.');
-    return;
+  if (existingName && existingPhone) {
+    // Already filled — go straight to Razorpay
+    launchRazorpay(existingName, existingPhone, sub, delC, total);
+  } else {
+    // Show clean details modal first
+    openRazorpayForm(sub, delC, total);
   }
+  return; // stop here — Razorpay launched from modal
 
   const options = {
     key: "rzp_live_SvFWMTOvuxSnbd", 
@@ -1598,6 +1601,67 @@ document.addEventListener('DOMContentLoaded', function() {
 // ── INIT ─────────────────────────────────────────────
 try { updateCartUI(); } catch(e) { console.warn('Cart UI error:', e); }
 loadProducts();
+
+// ── Razorpay modal helpers ────────────────────────
+let rzpPayload = {};
+
+function openRazorpayForm(sub, delC, total) {
+  rzpPayload = { sub, delC, total };
+  document.getElementById('rzp-amount-show').textContent = fmt(total);
+  document.getElementById('rzp-name').value    = '';
+  document.getElementById('rzp-phone').value   = '';
+  document.getElementById('rzp-address').value = '';
+  document.getElementById('rzp-err').style.display = 'none';
+  document.getElementById('rzp-modal-overlay').style.display = 'flex';
+  closeCart();
+}
+
+function closeRzpModal() {
+  document.getElementById('rzp-modal-overlay').style.display = 'none';
+}
+
+function submitRzpForm() {
+  const name    = document.getElementById('rzp-name').value.trim();
+  const phone   = document.getElementById('rzp-phone').value.trim();
+  const address = document.getElementById('rzp-address').value.trim();
+  const errEl   = document.getElementById('rzp-err');
+
+  if (!name) {
+    errEl.textContent = 'Please enter your name.';
+    errEl.style.display = 'block'; return;
+  }
+  if (!phone || phone.length < 10) {
+    errEl.textContent = 'Please enter a valid 10-digit phone number.';
+    errEl.style.display = 'block'; return;
+  }
+
+  errEl.style.display = 'none';
+  closeRzpModal();
+  launchRazorpay(name, phone, address,
+    rzpPayload.sub, rzpPayload.delC, rzpPayload.total);
+}
+
+function launchRazorpay(name, phone, address, sub, delC, total) {
+  const options = {
+    key: "YOUR_RAZORPAY_KEY_ID",
+    amount: total * 100,
+    currency: "INR",
+    name: "Sree Sathya Store",
+    description: "Grocery & Stationery Order",
+    prefill: {
+      name: name,
+      contact: phone
+    },
+    theme: { color: "#2d7a3a" },
+    handler: async function(response) {
+      await saveRazorpayOrder(name, phone, address,
+        response.razorpay_payment_id, sub, delC, total);
+    }
+  };
+  const rzp = new Razorpay(options);
+  rzp.open();
+}
+
 </script> 
 <div id="upi-overlay"
   style="position:fixed; inset:0; z-index:500;
@@ -1923,6 +1987,8 @@ updateCartUI = function() {
   const el = document.getElementById('upi-btn-total');
   if (el) el.textContent = fmt(total);
 };
+
+
 </script>
 <a href="track-order.html"
   style="position:fixed; bottom:5rem; right:1.2rem; z-index:150;
@@ -1936,5 +2002,100 @@ updateCartUI = function() {
   onmouseout="this.style.transform='scale(1)'">
   🔍 Track Order
 </a>
+<!-- ══ RAZORPAY DETAILS MODAL ══ -->
+<div id="rzp-modal-overlay"
+  style="position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.55);
+         backdrop-filter:blur(4px);display:none;align-items:center;
+         justify-content:center;padding:1.5rem;">
+  <div style="background:#fff;border-radius:16px;max-width:400px;width:100%;
+              box-shadow:0 24px 60px rgba(0,0,0,0.2);overflow:hidden;
+              animation:fadeUp 0.3s ease;">
+
+    <!-- Header -->
+    <div style="background:#2d7a3a;padding:1.2rem 1.5rem;
+                display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <h2 style="font-family:'Baloo 2',cursive;color:#fff;
+                   font-size:1.1rem;font-weight:700;margin:0;">
+          💳 Pay with Razorpay
+        </h2>
+        <p style="color:rgba(255,255,255,0.7);font-size:0.72rem;margin:0.2rem 0 0;">
+          Enter your details to continue
+        </p>
+      </div>
+      <button onclick="closeRzpModal()"
+        style="background:rgba(255,255,255,0.15);border:none;color:#fff;
+               width:32px;height:32px;border-radius:50%;font-size:1rem;
+               cursor:pointer;display:flex;align-items:center;justify-content:center;">
+        ✕
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:1.5rem;">
+
+      <!-- Amount display -->
+      <div style="background:#e8f5eb;border-radius:10px;padding:0.8rem 1rem;
+                  display:flex;justify-content:space-between;align-items:center;
+                  margin-bottom:1.2rem;">
+        <span style="font-size:0.82rem;color:#2d7a3a;font-weight:600;">
+          Amount to Pay
+        </span>
+        <span id="rzp-amount-show"
+          style="font-family:'Baloo 2',cursive;font-size:1.4rem;
+                 font-weight:800;color:#2d7a3a;">
+          ₹0
+        </span>
+      </div>
+
+      <!-- Name input -->
+      <input id="rzp-name" type="text" placeholder="Your full name *"
+        style="width:100%;padding:0.65rem 0.9rem;border:1.5px solid #e2ddd6;
+               border-radius:10px;font-family:'Nunito',sans-serif;font-size:0.88rem;
+               outline:none;color:#1a1a1a;margin-bottom:0.7rem;
+               transition:border-color 0.2s;"
+        onfocus="this.style.borderColor='#2d7a3a'"
+        onblur="this.style.borderColor='#e2ddd6'"/>
+
+      <!-- Phone input -->
+      <input id="rzp-phone" type="tel" placeholder="Phone number *" maxlength="10"
+        style="width:100%;padding:0.65rem 0.9rem;border:1.5px solid #e2ddd6;
+               border-radius:10px;font-family:'Nunito',sans-serif;font-size:0.88rem;
+               outline:none;color:#1a1a1a;margin-bottom:0.7rem;
+               transition:border-color 0.2s;"
+        onfocus="this.style.borderColor='#2d7a3a'"
+        onblur="this.style.borderColor='#e2ddd6'"/>
+
+      <!-- Address input -->
+      <textarea id="rzp-address" placeholder="Delivery address (optional)" rows="2"
+        style="width:100%;padding:0.65rem 0.9rem;border:1.5px solid #e2ddd6;
+               border-radius:10px;font-family:'Nunito',sans-serif;font-size:0.88rem;
+               outline:none;color:#1a1a1a;resize:none;margin-bottom:1rem;
+               transition:border-color 0.2s;"
+        onfocus="this.style.borderColor='#2d7a3a'"
+        onblur="this.style.borderColor='#e2ddd6'"></textarea>
+
+      <!-- Error -->
+      <p id="rzp-err"
+        style="color:#dc2626;font-size:0.78rem;font-weight:600;
+               margin-bottom:0.8rem;display:none;">
+      </p>
+
+      <!-- Pay button -->
+      <button onclick="submitRzpForm()"
+        style="width:100%;background:#f47c20;border:none;color:#fff;
+               padding:0.95rem;border-radius:50px;font-family:'Baloo 2',cursive;
+               font-size:1rem;font-weight:700;cursor:pointer;
+               box-shadow:0 4px 14px rgba(244,124,32,0.35);
+               transition:background 0.2s;">
+        💳 Continue to Pay
+      </button>
+
+      <p style="font-size:0.7rem;color:#6b7280;text-align:center;margin-top:0.6rem;">
+        Secured by Razorpay 🔒
+      </p>
+    </div>
+  </div>
+</div>
 </body>
 </html>
