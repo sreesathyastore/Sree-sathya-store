@@ -1410,34 +1410,103 @@ function cartQty(id, delta) {
 function openCart()  { document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('cart-overlay').classList.add('open'); }
 function closeCart() { document.getElementById('cart-sidebar').classList.remove('open'); document.getElementById('cart-overlay').classList.remove('open'); }
 
+
 function handleCheckout() {
-  const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const delC  = sub >= 500 ? 0 : 0;
-  const total = sub + delC;
+  const sub    = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const delC   = sub >= 500 ? 0 : 30;
+  const total  = sub + delC;
+
+  // Ask customer name and phone before payment
+  const name  = prompt('Your name:');
+  const phone = prompt('Your phone number:');
+
+  if (!name || !phone) {
+    showToast('Please enter your name and phone to continue.');
+    return;
+  }
 
   const options = {
-    key: "rzp_live_SvFWMTOvuxSnbd",   // ← paste your Key ID here
-    amount: total * 100,            // Razorpay uses paise
+    key: "rzp_live_SvFWMTOvuxSnbd", 
+    amount: total * 100,
     currency: "INR",
     name: "Sree Sathya Store",
     description: "Grocery & Stationery Order",
-    image: "",                      // optional: logo URL
-    handler: function(response) {
-      alert("✅ Order placed! Payment ID: " + response.razorpay_payment_id);
-      clearCart();
-      closeCart();
-    },
     prefill: {
-      name: "", email: "", contact: ""
+      name: name,
+      contact: phone
     },
-    notes: {
-      address: "Sree Sathya Store"
-    },
-    theme: { color: "#2d7a3a" }
+    theme: { color: "#2d7a3a" },
+
+    handler: async function(response) {
+      // ✅ Save to Supabase after successful Razorpay payment
+      await saveRazorpayOrder(
+        name, phone, response.razorpay_payment_id, sub, delC, total
+      );
+    }
   };
 
   const rzp = new Razorpay(options);
   rzp.open();
+}
+
+// ── Save Razorpay order to Supabase ──────────────────
+async function saveRazorpayOrder(name, phone, paymentId, sub, delC, total) {
+  const orderNo = 'SSS' +
+    String(new Date().getMonth()+1).padStart(2,'0') +
+    String(new Date().getDate()).padStart(2,'0') +
+    '-' + Math.floor(1000 + Math.random() * 9000);
+
+  const orderData = {
+    order_number:     orderNo,
+    customer_name:    name,
+    customer_phone:   phone,
+    items:            cart,
+    subtotal:         sub,
+    delivery_charge:  delC,
+    total:            total,
+    payment_method:   'Razorpay',
+    payment_status:   'paid',        // Razorpay only calls handler when paid ✅
+    upi_txn_id:       paymentId,     // store Razorpay payment ID here
+    order_status:     'new'
+  };
+
+  try {
+    const { error } = await sb.from('orders').insert([orderData]);
+    if (error) throw error;
+  } catch(e) {
+    console.warn('Supabase save error:', e.message);
+  }
+
+  // Show success
+  showToast(`✅ Order ${orderNo} placed successfully!`);
+
+  // Send WhatsApp to yourself
+  const itemsText = cart
+    .map(i => `• ${i.name} ×${i.qty} = ${fmt(i.price * i.qty)}`)
+    .join('%0A');
+
+  const msg =
+    `🛒 *New Razorpay Order — Sree Sathya Store*%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `📋 Order No: *${orderNo}*%0A` +
+    `👤 Name: *${name}*%0A` +
+    `📞 Phone: *${phone}*%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `*Items:*%0A${itemsText}%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `💰 *Total: ${fmt(total)}*%0A` +
+    `✅ Payment: *PAID via Razorpay*%0A` +
+    `🔖 Payment ID: ${paymentId}%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `🔍 Track: https://sreesathyastore.github.io/Sree-sathya-store/track-order.html?order=${orderNo}`;
+
+  // Open WhatsApp — customer sends order to you
+  setTimeout(() => {
+    window.open(`https://wa.me/${YOUR_WHATSAPP_NO}?text=${msg}`, '_blank');
+  }, 1000);
+
+  clearCart();
+  closeCart();
 }
 
 // ── PRODUCT MODAL ────────────────────────────────────
