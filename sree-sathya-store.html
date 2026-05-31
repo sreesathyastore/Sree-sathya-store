@@ -1409,28 +1409,32 @@ function cartQty(id, delta) {
 
 function openCart()  { document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('cart-overlay').classList.add('open'); }
 function closeCart() { document.getElementById('cart-sidebar').classList.remove('open'); document.getElementById('cart-overlay').classList.remove('open'); }
-
+// ══════════════════════════════════════════
+// RAZORPAY — Complete Working Flow
+// ══════════════════════════════════════════
 
 function handleCheckout() {
-  const sub    = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const delC   = sub >= 500 ? 0 : 0;
-  const total  = sub + delC;
-  // Ask customer name and phone before payment
-  // Reuse UPI form fields if already filled
+  if (cart.length === 0) return;
+
+  const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const delC  = sub >= 500 ? 0 : 30;
+  const total = sub + delC;
+
+  // Check if UPI form already filled
   const existingName  = document.getElementById('upi-name')?.value.trim();
   const existingPhone = document.getElementById('upi-phone')?.value.trim();
 
   if (existingName && existingPhone) {
-    // Already filled — go straight to Razorpay
-    launchRazorpay(existingName, existingPhone, sub, delC, total);
+    launchRazorpay(existingName, existingPhone, '', sub, delC, total);
   } else {
-    // Show clean details modal first
     openRazorpayForm(sub, delC, total);
   }
-  return; // stop here — Razorpay launched from modal
+}
 
+// ── Launch Razorpay ──────────────────────
+function launchRazorpay(name, phone, address, sub, delC, total) {
   const options = {
-    key: "rzp_live_SvFWMTOvuxSnbd", 
+    key: "rzp_live_SvFWMTOvuxSnbd",  // ← your live key
     amount: total * 100,
     currency: "INR",
     name: "Sree Sathya Store",
@@ -1442,10 +1446,22 @@ function handleCheckout() {
     theme: { color: "#2d7a3a" },
 
     handler: async function(response) {
-      // ✅ Save to Supabase after successful Razorpay payment
+      // ✅ This runs ONLY after successful payment
       await saveRazorpayOrder(
-        name, phone, response.razorpay_payment_id, sub, delC, total
+        name,
+        phone,
+        address,
+        response.razorpay_payment_id,
+        sub,
+        delC,
+        total
       );
+    },
+
+    modal: {
+      ondismiss: function() {
+        showToast('Payment cancelled. Your cart is saved.');
+      }
     }
   };
 
@@ -1453,65 +1469,178 @@ function handleCheckout() {
   rzp.open();
 }
 
-// ── Save Razorpay order to Supabase ──────────────────
-async function saveRazorpayOrder(name, phone, paymentId, sub, delC, total) {
+// ── Save to Supabase after payment ───────
+async function saveRazorpayOrder(name, phone, address, paymentId, sub, delC, total) {
+  // Generate order number
+  const now = new Date();
   const orderNo = 'SSS' +
-    String(new Date().getMonth()+1).padStart(2,'0') +
-    String(new Date().getDate()).padStart(2,'0') +
+    String(now.getMonth() + 1).padStart(2, '0') +
+    String(now.getDate()).padStart(2, '0') +
     '-' + Math.floor(1000 + Math.random() * 9000);
 
+  // Build order object
   const orderData = {
     order_number:     orderNo,
     customer_name:    name,
     customer_phone:   phone,
-    items:            cart,
+    customer_address: address || null,
+    items:            JSON.parse(JSON.stringify(cart)), // snapshot of cart
     subtotal:         sub,
     delivery_charge:  delC,
     total:            total,
     payment_method:   'Razorpay',
-    payment_status:   'paid',        // Razorpay only calls handler when paid ✅
-    upi_txn_id:       paymentId,     // store Razorpay payment ID here
+    payment_status:   'paid',
+    upi_txn_id:       paymentId,  // Razorpay payment ID stored here
     order_status:     'new'
   };
 
+  // Save to Supabase
   try {
-    const { error } = await sb.from('orders').insert([orderData]);
+    const { data, error } = await sb
+      .from('orders')
+      .insert([orderData])
+      .select();
+
     if (error) throw error;
+    console.log('✅ Order saved to Supabase:', orderNo);
+
   } catch(e) {
-    console.warn('Supabase save error:', e.message);
+    console.error('❌ Supabase save failed:', e.message);
+    // Still show success to customer — order details sent via WhatsApp
   }
 
-  // Show success
-  showToast(`✅ Order ${orderNo} placed successfully!`);
+  // Clear cart BEFORE showing success
+  // (snapshot already saved above)
+  clearCart();
+  closeCart();
 
-  // Send WhatsApp to yourself
-  const itemsText = cart
+  // Show success toast
+  showToast(`🎉 Order ${orderNo} placed! Payment successful.`);
+
+  // Build WhatsApp message to YOU (store owner)
+  const itemsText = orderData.items
     .map(i => `• ${i.name} ×${i.qty} = ${fmt(i.price * i.qty)}`)
     .join('%0A');
 
-  const msg =
-    `🛒 *New Razorpay Order — Sree Sathya Store*%0A` +
+  const ownerMsg =
+    `💳 *New Razorpay Order — Sree Sathya Store*%0A` +
     `━━━━━━━━━━━━━━━%0A` +
-    `📋 Order No: *${orderNo}*%0A` +
+    `📋 Order: *${orderNo}*%0A` +
     `👤 Name: *${name}*%0A` +
     `📞 Phone: *${phone}*%0A` +
+    (address ? `📍 Address: ${address}%0A` : '') +
     `━━━━━━━━━━━━━━━%0A` +
     `*Items:*%0A${itemsText}%0A` +
     `━━━━━━━━━━━━━━━%0A` +
     `💰 *Total: ${fmt(total)}*%0A` +
-    `✅ Payment: *PAID via Razorpay*%0A` +
+    `✅ *PAID via Razorpay*%0A` +
     `🔖 Payment ID: ${paymentId}%0A` +
     `━━━━━━━━━━━━━━━%0A` +
     `🔍 Track: https://sreesathyastore.github.io/Sree-sathya-store/track-order.html?order=${orderNo}`;
 
-  // Open WhatsApp — customer sends order to you
-  setTimeout(() => {
-    window.open(`https://wa.me/${YOUR_WHATSAPP_NO}?text=${msg}`, '_blank');
-  }, 1000);
+  // Build WhatsApp message to CUSTOMER
+  const customerMsg =
+    `✅ *Order Confirmed — Sree Sathya Store*%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `📋 Order No: *${orderNo}*%0A` +
+    `👤 ${name}%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `*Items:*%0A${itemsText}%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `💰 *Total: ${fmt(total)}*%0A` +
+    `✅ Payment received. Thank you!%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `🔍 *Track your order:*%0A` +
+    `https://sreesathyastore.github.io/Sree-sathya-store/track-order.html?order=${orderNo}`;
 
-  clearCart();
-  closeCart();
+  // Show success modal with both WhatsApp buttons
+  showRazorpaySuccess(orderNo, name, total, paymentId, ownerMsg, customerMsg, phone);
 }
+
+// ── Success Modal ────────────────────────
+function showRazorpaySuccess(orderNo, name, total, paymentId, ownerMsg, customerMsg, phone) {
+  // Remove existing if any
+  const existing = document.getElementById('rzp-success-modal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'rzp-success-modal';
+  modal.style.cssText = `position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.6);
+    backdrop-filter:blur(6px);display:flex;align-items:center;
+    justify-content:center;padding:1.5rem;`;
+
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:16px;max-width:380px;width:100%;
+                padding:2rem;text-align:center;
+                box-shadow:0 24px 60px rgba(0,0,0,0.2);
+                animation:fadeUp 0.3s ease;">
+
+      <div style="font-size:3.5rem;margin-bottom:0.8rem;">🎉</div>
+
+      <h2 style="font-family:'Baloo 2',cursive;font-size:1.4rem;
+                 color:#2d7a3a;margin:0 0 0.3rem;">Payment Successful!</h2>
+
+      <p style="color:#6b7280;font-size:0.85rem;margin:0 0 1rem;">
+        Thank you for shopping at<br>
+        <strong style="color:#1a1a1a;">Sree Sathya Store</strong>
+      </p>
+
+      <!-- Order details -->
+      <div style="background:#e8f5eb;border-radius:10px;padding:0.9rem;
+                  text-align:left;margin-bottom:1.2rem;font-size:0.82rem;
+                  color:#2d7a3a;line-height:2;">
+        <div style="display:flex;justify-content:space-between;">
+          <span>Order No.</span><strong>${orderNo}</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span>Name</span><strong>${name}</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span>Total Paid</span><strong>${fmt(total)}</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span>Payment</span><strong>✅ Razorpay</strong>
+        </div>
+      </div>
+
+      <!-- Send to YOUR WhatsApp -->
+      <a href="https://wa.me/${YOUR_WHATSAPP_NO}?text=${ownerMsg}"
+        target="_blank"
+        style="display:block;background:#25D366;color:#fff;padding:0.75rem;
+               border-radius:50px;text-decoration:none;font-family:'Baloo 2',cursive;
+               font-weight:700;font-size:0.88rem;margin-bottom:0.6rem;">
+        📲 Send Order to Store
+      </a>
+
+      <!-- Send to CUSTOMER WhatsApp -->
+      <a href="https://wa.me/91${phone}?text=${customerMsg}"
+        target="_blank"
+        style="display:block;background:#075E54;color:#fff;padding:0.75rem;
+               border-radius:50px;text-decoration:none;font-family:'Baloo 2',cursive;
+               font-weight:700;font-size:0.88rem;margin-bottom:0.6rem;">
+        📩 Send Confirmation to Yourself
+      </a>
+
+      <!-- Track order -->
+      <a href="https://sreesathyastore.github.io/Sree-sathya-store/track-order.html?order=${orderNo}"
+        target="_blank"
+        style="display:block;background:#e8f5eb;color:#2d7a3a;padding:0.7rem;
+               border-radius:50px;text-decoration:none;font-family:'Baloo 2',cursive;
+               font-weight:700;font-size:0.85rem;margin-bottom:0.8rem;">
+        🔍 Track Your Order
+      </a>
+
+      <button onclick="document.getElementById('rzp-success-modal').remove()"
+        style="width:100%;background:#f6f4f0;border:none;color:#6b7280;
+               padding:0.7rem;border-radius:50px;font-family:'Nunito',sans-serif;
+               font-size:0.85rem;cursor:pointer;">
+        Continue Shopping
+      </button>
+    </div>`;
+
+  document.body.appendChild(modal);
+}
+
 
 // ── PRODUCT MODAL ────────────────────────────────────
 function openModal(p) {
@@ -1641,26 +1770,7 @@ function submitRzpForm() {
     rzpPayload.sub, rzpPayload.delC, rzpPayload.total);
 }
 
-function launchRazorpay(name, phone, address, sub, delC, total) {
-  const options = {
-    key: "rzp_live_SvFWMTOvuxSnbd", 
-    amount: total * 100,
-    currency: "INR",
-    name: "Sree Sathya Store",
-    description: "Grocery & Stationery Order",
-    prefill: {
-      name: name,
-      contact: phone
-    },
-    theme: { color: "#2d7a3a" },
-    handler: async function(response) {
-      await saveRazorpayOrder(name, phone, address,
-        response.razorpay_payment_id, sub, delC, total);
-    }
-  };
-  const rzp = new Razorpay(options);
-  rzp.open();
-}
+
 
 </script> 
 <div id="upi-overlay"
