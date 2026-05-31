@@ -836,17 +836,25 @@
        RESPONSIVE
     ══════════════════════════════════════════ */
     @media (max-width: 640px) {
-      .header-top { padding: 0 1rem; }
-      .logo-text .name { font-size: 1rem; }
-      .search-wrap { max-width: 200px; }
-      .hero { padding: 1.8rem 1rem; flex-direction: column; }
-      .hero-emojis { display: none; }
-      .promo-strip { padding: 1rem; }
-      .shop-section, .sort-bar, .section-header { padding-left: 1rem; padding-right: 1rem; }
-      .product-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
-      .modal-box { grid-template-columns: 1fr; }
-      .modal-img-col { min-height: 200px; }
-      .cat-strip { padding: 0 1rem; }
+      .header-top {
+       flex-wrap: wrap;
+       height: auto;
+       padding: 0.6rem 1rem;
+       gap: 0.5rem;
+       }
+      .search-wrap {
+        order: 3;
+        max-width: 100%;
+        width: 100%;
+        flex: none;
+        }
+      #search-input {
+    width: 100% !important;
+    font-size: 1rem;
+    padding: 0.6rem 1rem 0.6rem 2.6rem;
+       }
+      .logo-wrap { order: 1; }
+      .header-actions { order: 2; }
     }
   </style>
 </head>
