@@ -1510,8 +1510,10 @@ function showToast(msg) {
 }
 
 // ── KEYBOARD ─────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); closeCart(); }
+// Replace the last 2 lines of your script with this:
+document.addEventListener('DOMContentLoaded', function() {
+  try { updateCartUI(); } catch(e) { console.warn('Cart UI:', e); }
+  loadProducts();
 });
 
 // ── INIT ─────────────────────────────────────────────
