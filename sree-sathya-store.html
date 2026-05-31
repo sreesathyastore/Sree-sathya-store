@@ -1515,7 +1515,7 @@ document.addEventListener('keydown', e => {
 });
 
 // ── INIT ─────────────────────────────────────────────
-updateCartUI();
+try { updateCartUI(); } catch(e) { console.warn('Cart UI error:', e); }
 loadProducts();
 </script> 
 <div id="upi-overlay"
