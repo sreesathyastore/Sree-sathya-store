@@ -1517,7 +1517,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ── INIT ─────────────────────────────────────────────
-updateCartUI();
+try { updateCartUI(); } catch(e) { console.warn('Cart UI error:', e); }
 loadProducts();
 </script> 
 <div id="upi-overlay"
@@ -1790,11 +1790,11 @@ async function confirmUpiOrder() {
     .join('%0A');
 
   const msg =
-    `🛒 *New Order — Sree Sathya Store*%0A` +
+    `🛒 *Order Confirmed — Sree Sathya Store*%0A` +
     `━━━━━━━━━━━━━━━%0A` +
     `📋 Order No: *${orderNo}*%0A` +
     `👤 Name: *${name}*%0A` +
-    `📞 Phone: *${phone}*%0A` +
+    `📞 Phone: *${phone}*%0A` +https://sreesathyastore.github.io/Sree-sathya-store/sree-sathya-store.html#
     (address ? `📍 Address: ${address}%0A` : '') +
     `━━━━━━━━━━━━━━━%0A` +
     `*Items:*%0A${itemsText}%0A` +
@@ -1802,7 +1802,10 @@ async function confirmUpiOrder() {
     `📦 Delivery: ${delC === 0 ? 'FREE' : fmt(delC)}%0A` +
     `💰 *Total: ${fmt(total)}*%0A` +
     `💳 Payment: PhonePe UPI%0A` +
-    (txnId ? `🔖 UTR/Txn ID: *${txnId}*` : `⏳ Payment: Pending verification`);
+    (txnId ? `🔖 UTR/Txn ID: *${txnId}*%0A` : `⏳ Payment: Pending%0A`) +
+    `━━━━━━━━━━━━━━━%0A` +
+    `🔍 *Track your order:*%0A` +
+    `https://sreesathyastore.github.io/Sree-sathya-store/sree-sathya-store.html/track-order.html?order=${orderNo}`;
 
   // Show success screen
   document.getElementById('upi-success-details').innerHTML = `
