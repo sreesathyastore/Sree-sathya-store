@@ -1517,7 +1517,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ── INIT ─────────────────────────────────────────────
-updateCartUI();
+try { updateCartUI(); } catch(e) { console.warn('Cart UI error:', e); }
 loadProducts();
 </script> 
 <div id="upi-overlay"
@@ -1611,17 +1611,17 @@ loadProducts();
                   font-weight:800; color:#5f259f; margin:0 0 0.8rem;"
            id="upi-id-display"></p>
 
-        <a id="upi-pay-link" href="#"
-          style="display:block; background:#5f259f; color:#fff;
-                 padding:0.8rem; border-radius:50px; text-align:center;
+        <button onclick="triggerUpiApp()"
+          style="width:100%; background:#5f259f; color:#fff; border:none;
+                 padding:0.8rem; border-radius:50px;
                  font-family:'Baloo 2',cursive; font-weight:700;
-                 font-size:0.95rem; text-decoration:none;
+                 font-size:0.95rem; cursor:pointer;
                  box-shadow:0 4px 12px rgba(95,37,159,0.3);">
-                 📱 Open PhonePe / GPay / BHIM
-        </a>
-<p style="font-size:0.7rem;color:#7c7568;text-align:center;margin-top:0.5rem;">
-  Tap above → pay → come back and enter UTR number below
-</p>
+          📱 Open PhonePe / GPay / BHIM
+        </button>
+        <p style="font-size:0.7rem; color:#7c7568; margin:0.5rem 0 0;">
+          Opens your UPI app with amount pre-filled
+        </p>
       </div>
 
       <!-- Step 4: UTR -->
@@ -1712,17 +1712,6 @@ function openUpiCheckout() {
   document.getElementById('upi-amount-display').textContent = fmt(total);
   document.getElementById('upi-btn-total').textContent = fmt(total);
   document.getElementById('upi-overlay').style.display = 'flex';
-
-  // Build UPI link and set it on the anchor tag
-  const upiUrl =
-    `upi://pay?pa=${encodeURIComponent(YOUR_UPI_ID)}` +
-    `&pn=${encodeURIComponent('Sree Sathya Store')}` +
-    `&am=${total.toFixed(2)}` +
-    `&cu=INR` +
-    `&tn=${encodeURIComponent('Order from Sree Sathya Store')}`;
-
-  const link = document.getElementById('upi-pay-link');
-  if (link) link.href = upiUrl;
 }
 
 function closeUpiCheckout() {
@@ -1730,7 +1719,24 @@ function closeUpiCheckout() {
 }
 
 // Deep-link opens PhonePe / GPay / BHIM with amount pre-filled
-function triggerUpiApp() { /* no longer used */ }
+function triggerUpiApp() {
+  const name  = document.getElementById('upi-name').value.trim() || 'Customer';
+  const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const total = sub + delivery(sub);
+
+  const upiUrl =
+    `upi://pay?pa=${encodeURIComponent(YOUR_UPI_ID)}` +
+    `&pn=${encodeURIComponent('Sree Sathya Store')}` +
+    `&am=${total.toFixed(2)}` +
+    `&cu=INR` +
+    `&tn=${encodeURIComponent('Order - Sree Sathya Store - ' + name)}`;
+
+  window.location.href = upiUrl;
+
+  setTimeout(() => {
+    showToast('📱 If app did not open, pay manually to: ' + YOUR_UPI_ID);
+  }, 1800);
+}
 
 // Generate order number
 function generateUpiOrderNo() {
@@ -1838,7 +1844,6 @@ updateCartUI = function() {
   const el = document.getElementById('upi-btn-total');
   if (el) el.textContent = fmt(total);
 };
-
 </script>
 
 </body>
