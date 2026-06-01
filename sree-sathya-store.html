@@ -1984,7 +1984,13 @@ function triggerUpiApp() {
     `&cu=INR` +
     `&tn=${encodeURIComponent('Order - Sree Sathya Store - ' + name)}`;
 
-  window.location.href = upiUrl;
+  // ✅ Use hidden anchor click — does NOT redirect page, opens app as intent
+  const a = document.createElement('a');
+  a.href = upiUrl;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => document.body.removeChild(a), 500);
 
   setTimeout(() => {
     showToast('📱 If app did not open, pay manually to: ' + YOUR_UPI_ID);

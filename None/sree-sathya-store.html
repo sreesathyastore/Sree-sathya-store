@@ -836,17 +836,25 @@
        RESPONSIVE
     ══════════════════════════════════════════ */
     @media (max-width: 640px) {
-      .header-top { padding: 0 1rem; }
-      .logo-text .name { font-size: 1rem; }
-      .search-wrap { max-width: 200px; }
-      .hero { padding: 1.8rem 1rem; flex-direction: column; }
-      .hero-emojis { display: none; }
-      .promo-strip { padding: 1rem; }
-      .shop-section, .sort-bar, .section-header { padding-left: 1rem; padding-right: 1rem; }
-      .product-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
-      .modal-box { grid-template-columns: 1fr; }
-      .modal-img-col { min-height: 200px; }
-      .cat-strip { padding: 0 1rem; }
+      .header-top {
+       flex-wrap: wrap;
+       height: auto;
+       padding: 0.6rem 1rem;
+       gap: 0.5rem;
+       }
+      .search-wrap {
+        order: 3;
+        max-width: 100%;
+        width: 100%;
+        flex: none;
+        }
+      #search-input {
+    width: 100% !important;
+    font-size: 1rem;
+    padding: 0.6rem 1rem 0.6rem 2.6rem;
+       }
+      .logo-wrap { order: 1; }
+      .header-actions { order: 2; }
     }
   </style>
 </head>
@@ -858,7 +866,7 @@
     <a class="logo-wrap" href="#">
       <div class="logo-icon">🛒</div>
       <div class="logo-text">
-        <span class="name">Sree Sathya Store</span>
+        <span class="name" >Sree Sathya Store</span>
         <span class="tagline">Grocery &amp; Stationery</span>
       </div>
     </a>
@@ -871,6 +879,7 @@
     </div>
 
     <div class="header-actions">
+
       <button class="cart-btn" onclick="openCart()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
@@ -1400,36 +1409,238 @@ function cartQty(id, delta) {
 
 function openCart()  { document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('cart-overlay').classList.add('open'); }
 function closeCart() { document.getElementById('cart-sidebar').classList.remove('open'); document.getElementById('cart-overlay').classList.remove('open'); }
+// ══════════════════════════════════════════
+// RAZORPAY — Complete Working Flow
+// ══════════════════════════════════════════
 
 function handleCheckout() {
+  if (cart.length === 0) return;
+
   const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const delC  = sub >= 500 ? 0 : 0;
   const total = sub + delC;
 
+  // Check if UPI form already filled
+  const existingName  = document.getElementById('upi-name')?.value.trim();
+  const existingPhone = document.getElementById('upi-phone')?.value.trim();
+
+  if (existingName && existingPhone) {
+    launchRazorpay(existingName, existingPhone, '', sub, delC, total);
+  } else {
+    openRazorpayForm(sub, delC, total);
+  }
+}
+
+// ── Launch Razorpay ──────────────────────
+function launchRazorpay(name, phone, address, sub, delC, total) {
   const options = {
-    key: "rzp_live_SvFWMTOvuxSnbd",   // ← paste your Key ID here
-    amount: total * 100,            // Razorpay uses paise
+    key: "rzp_live_SvFWMTOvuxSnbd",  // ← your live key
+    amount: total * 100,
     currency: "INR",
     name: "Sree Sathya Store",
     description: "Grocery & Stationery Order",
-    image: "",                      // optional: logo URL
-    handler: function(response) {
-      alert("✅ Order placed! Payment ID: " + response.razorpay_payment_id);
-      clearCart();
-      closeCart();
-    },
     prefill: {
-      name: "", email: "", contact: ""
+      name: name,
+      contact: phone
     },
-    notes: {
-      address: "Sree Sathya Store"
+    theme: { color: "#2d7a3a" },
+
+    handler: async function(response) {
+      // ✅ This runs ONLY after successful payment
+      await saveRazorpayOrder(
+        name,
+        phone,
+        address,
+        response.razorpay_payment_id,
+        sub,
+        delC,
+        total
+      );
     },
-    theme: { color: "#2d7a3a" }
+
+    modal: {
+      ondismiss: function() {
+        showToast('Payment cancelled. Your cart is saved.');
+      }
+    }
   };
 
   const rzp = new Razorpay(options);
   rzp.open();
 }
+
+// ── Save to Supabase after payment ───────
+async function saveRazorpayOrder(name, phone, address, paymentId, sub, delC, total) {
+  // Generate order number
+  const now = new Date();
+  const orderNo = 'SSS' +
+    String(now.getMonth() + 1).padStart(2, '0') +
+    String(now.getDate()).padStart(2, '0') +
+    '-' + Math.floor(1000 + Math.random() * 9000);
+
+  // Build order object
+  const orderData = {
+    order_number:     orderNo,
+    customer_name:    name,
+    customer_phone:   phone,
+    customer_address: address || null,
+    items:            JSON.parse(JSON.stringify(cart)), // snapshot of cart
+    subtotal:         sub,
+    delivery_charge:  delC,
+    total:            total,
+    payment_method:   'Razorpay',
+    payment_status:   'paid',
+    upi_txn_id:       paymentId,  // Razorpay payment ID stored here
+    order_status:     'new'
+  };
+
+  // Save to Supabase
+  try {
+    const { data, error } = await sb
+      .from('orders')
+      .insert([orderData])
+      .select();
+
+    if (error) throw error;
+    console.log('✅ Order saved to Supabase:', orderNo);
+
+  } catch(e) {
+    console.error('❌ Supabase save failed:', e.message);
+    // Still show success to customer — order details sent via WhatsApp
+  }
+
+  // Clear cart BEFORE showing success
+  // (snapshot already saved above)
+  clearCart();
+  closeCart();
+
+  // Show success toast
+  showToast(`🎉 Order ${orderNo} placed! Payment successful.`);
+
+  // Build WhatsApp message to YOU (store owner)
+  const itemsText = orderData.items
+    .map(i => `• ${i.name} ×${i.qty} = ${fmt(i.price * i.qty)}`)
+    .join('%0A');
+
+  const ownerMsg =
+    `💳 *New Razorpay Order — Sree Sathya Store*%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `📋 Order: *${orderNo}*%0A` +
+    `👤 Name: *${name}*%0A` +
+    `📞 Phone: *${phone}*%0A` +
+    (address ? `📍 Address: ${address}%0A` : '') +
+    `━━━━━━━━━━━━━━━%0A` +
+    `*Items:*%0A${itemsText}%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `💰 *Total: ${fmt(total)}*%0A` +
+    `✅ *PAID via Razorpay*%0A` +
+    `🔖 Payment ID: ${paymentId}%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `🔍 Track: https://sreesathyastore.github.io/Sree-sathya-store/track-order.html?order=${orderNo}`;
+
+  // Build WhatsApp message to CUSTOMER
+  const customerMsg =
+    `✅ *Order Confirmed — Sree Sathya Store*%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `📋 Order No: *${orderNo}*%0A` +
+    `👤 ${name}%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `*Items:*%0A${itemsText}%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `💰 *Total: ${fmt(total)}*%0A` +
+    `✅ Payment received. Thank you!%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `🔍 *Track your order:*%0A` +
+    `https://sreesathyastore.github.io/Sree-sathya-store/track-order.html?order=${orderNo}`;
+
+  // Show success modal with both WhatsApp buttons
+  showRazorpaySuccess(orderNo, name, total, paymentId, ownerMsg, customerMsg, phone);
+}
+
+// ── Success Modal ────────────────────────
+function showRazorpaySuccess(orderNo, name, total, paymentId, ownerMsg, customerMsg, phone) {
+  // Remove existing if any
+  const existing = document.getElementById('rzp-success-modal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'rzp-success-modal';
+  modal.style.cssText = `position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.6);
+    backdrop-filter:blur(6px);display:flex;align-items:center;
+    justify-content:center;padding:1.5rem;`;
+
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:16px;max-width:380px;width:100%;
+                padding:2rem;text-align:center;
+                box-shadow:0 24px 60px rgba(0,0,0,0.2);
+                animation:fadeUp 0.3s ease;">
+
+      <div style="font-size:3.5rem;margin-bottom:0.8rem;">🎉</div>
+
+      <h2 style="font-family:'Baloo 2',cursive;font-size:1.4rem;
+                 color:#2d7a3a;margin:0 0 0.3rem;">Payment Successful!</h2>
+
+      <p style="color:#6b7280;font-size:0.85rem;margin:0 0 1rem;">
+        Thank you for shopping at<br>
+        <strong style="color:#1a1a1a;">Sree Sathya Store</strong>
+      </p>
+
+      <!-- Order details -->
+      <div style="background:#e8f5eb;border-radius:10px;padding:0.9rem;
+                  text-align:left;margin-bottom:1.2rem;font-size:0.82rem;
+                  color:#2d7a3a;line-height:2;">
+        <div style="display:flex;justify-content:space-between;">
+          <span>Order No.</span><strong>${orderNo}</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span>Name</span><strong>${name}</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span>Total Paid</span><strong>${fmt(total)}</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span>Payment</span><strong>✅ Razorpay</strong>
+        </div>
+      </div>
+
+      <!-- Send to YOUR WhatsApp -->
+      <a href="https://wa.me/${YOUR_WHATSAPP_NO}?text=${ownerMsg}"
+        target="_blank"
+        style="display:block;background:#25D366;color:#fff;padding:0.75rem;
+               border-radius:50px;text-decoration:none;font-family:'Baloo 2',cursive;
+               font-weight:700;font-size:0.88rem;margin-bottom:0.6rem;">
+        📲 Send Order to Store
+      </a>
+
+      <!-- Send to CUSTOMER WhatsApp -->
+      <a href="https://wa.me/91${phone}?text=${customerMsg}"
+        target="_blank"
+        style="display:block;background:#075E54;color:#fff;padding:0.75rem;
+               border-radius:50px;text-decoration:none;font-family:'Baloo 2',cursive;
+               font-weight:700;font-size:0.88rem;margin-bottom:0.6rem;">
+        📩 Send Confirmation to Yourself
+      </a>
+
+      <!-- Track order -->
+      <a href="https://sreesathyastore.github.io/Sree-sathya-store/track-order.html?order=${orderNo}"
+        target="_blank"
+        style="display:block;background:#e8f5eb;color:#2d7a3a;padding:0.7rem;
+               border-radius:50px;text-decoration:none;font-family:'Baloo 2',cursive;
+               font-weight:700;font-size:0.85rem;margin-bottom:0.8rem;">
+        🔍 Track Your Order
+      </a>
+
+      <button onclick="document.getElementById('rzp-success-modal').remove()"
+        style="width:100%;background:#f6f4f0;border:none;color:#6b7280;
+               padding:0.7rem;border-radius:50px;font-family:'Nunito',sans-serif;
+               font-size:0.85rem;cursor:pointer;">
+        Continue Shopping
+      </button>
+    </div>`;
+
+  document.body.appendChild(modal);
+}
+
 
 // ── PRODUCT MODAL ────────────────────────────────────
 function openModal(p) {
@@ -1519,6 +1730,48 @@ document.addEventListener('DOMContentLoaded', function() {
 // ── INIT ─────────────────────────────────────────────
 try { updateCartUI(); } catch(e) { console.warn('Cart UI error:', e); }
 loadProducts();
+
+// ── Razorpay modal helpers ────────────────────────
+let rzpPayload = {};
+
+function openRazorpayForm(sub, delC, total) {
+  rzpPayload = { sub, delC, total };
+  document.getElementById('rzp-amount-show').textContent = fmt(total);
+  document.getElementById('rzp-name').value    = '';
+  document.getElementById('rzp-phone').value   = '';
+  document.getElementById('rzp-address').value = '';
+  document.getElementById('rzp-err').style.display = 'none';
+  document.getElementById('rzp-modal-overlay').style.display = 'flex';
+  closeCart();
+}
+
+function closeRzpModal() {
+  document.getElementById('rzp-modal-overlay').style.display = 'none';
+}
+
+function submitRzpForm() {
+  const name    = document.getElementById('rzp-name').value.trim();
+  const phone   = document.getElementById('rzp-phone').value.trim();
+  const address = document.getElementById('rzp-address').value.trim();
+  const errEl   = document.getElementById('rzp-err');
+
+  if (!name) {
+    errEl.textContent = 'Please enter your name.';
+    errEl.style.display = 'block'; return;
+  }
+  if (!phone || phone.length < 10) {
+    errEl.textContent = 'Please enter a valid 10-digit phone number.';
+    errEl.style.display = 'block'; return;
+  }
+
+  errEl.style.display = 'none';
+  closeRzpModal();
+  launchRazorpay(name, phone, address,
+    rzpPayload.sub, rzpPayload.delC, rzpPayload.total);
+}
+
+
+
 </script> 
 <div id="upi-overlay"
   style="position:fixed; inset:0; z-index:500;
@@ -1794,7 +2047,7 @@ async function confirmUpiOrder() {
     `━━━━━━━━━━━━━━━%0A` +
     `📋 Order No: *${orderNo}*%0A` +
     `👤 Name: *${name}*%0A` +
-    `📞 Phone: *${phone}*%0A` +https://sreesathyastore.github.io/Sree-sathya-store/sree-sathya-store.html#
+    `📞 Phone: *${phone}*%0A` +
     (address ? `📍 Address: ${address}%0A` : '') +
     `━━━━━━━━━━━━━━━%0A` +
     `*Items:*%0A${itemsText}%0A` +
@@ -1805,7 +2058,7 @@ async function confirmUpiOrder() {
     (txnId ? `🔖 UTR/Txn ID: *${txnId}*%0A` : `⏳ Payment: Pending%0A`) +
     `━━━━━━━━━━━━━━━%0A` +
     `🔍 *Track your order:*%0A` +
-    `https://sreesathyastore.github.io/Sree-sathya-store/sree-sathya-store.html/track-order.html?order=${orderNo}`;
+    `https://sreesathyastore.github.io/Sree-sathya-store/track-order.html?order=${orderNo}`;
 
   // Show success screen
   document.getElementById('upi-success-details').innerHTML = `
@@ -1844,7 +2097,115 @@ updateCartUI = function() {
   const el = document.getElementById('upi-btn-total');
   if (el) el.textContent = fmt(total);
 };
-</script>
 
+
+</script>
+<a href="track-order.html"
+  style="position:fixed; bottom:5rem; right:1.2rem; z-index:150;
+         background:#2d7a3a; color:#fff; text-decoration:none;
+         padding:0.6rem 1rem; border-radius:50px;
+         font-family:'Baloo 2',cursive; font-size:0.82rem; font-weight:700;
+         box-shadow:0 4px 16px rgba(45,122,58,0.4);
+         display:flex; align-items:center; gap:0.4rem;
+         transition:transform 0.2s;"
+  onmouseover="this.style.transform='scale(1.05)'"
+  onmouseout="this.style.transform='scale(1)'">
+  🔍 Track Order
+</a>
+<!-- ══ RAZORPAY DETAILS MODAL ══ -->
+<div id="rzp-modal-overlay"
+  style="position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.55);
+         backdrop-filter:blur(4px);display:none;align-items:center;
+         justify-content:center;padding:1.5rem;">
+  <div style="background:#fff;border-radius:16px;max-width:400px;width:100%;
+              box-shadow:0 24px 60px rgba(0,0,0,0.2);overflow:hidden;
+              animation:fadeUp 0.3s ease;">
+
+    <!-- Header -->
+    <div style="background:#2d7a3a;padding:1.2rem 1.5rem;
+                display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <h2 style="font-family:'Baloo 2',cursive;color:#fff;
+                   font-size:1.1rem;font-weight:700;margin:0;">
+          💳 Pay with Razorpay
+        </h2>
+        <p style="color:rgba(255,255,255,0.7);font-size:0.72rem;margin:0.2rem 0 0;">
+          Enter your details to continue
+        </p>
+      </div>
+      <button onclick="closeRzpModal()"
+        style="background:rgba(255,255,255,0.15);border:none;color:#fff;
+               width:32px;height:32px;border-radius:50%;font-size:1rem;
+               cursor:pointer;display:flex;align-items:center;justify-content:center;">
+        ✕
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:1.5rem;">
+
+      <!-- Amount display -->
+      <div style="background:#e8f5eb;border-radius:10px;padding:0.8rem 1rem;
+                  display:flex;justify-content:space-between;align-items:center;
+                  margin-bottom:1.2rem;">
+        <span style="font-size:0.82rem;color:#2d7a3a;font-weight:600;">
+          Amount to Pay
+        </span>
+        <span id="rzp-amount-show"
+          style="font-family:'Baloo 2',cursive;font-size:1.4rem;
+                 font-weight:800;color:#2d7a3a;">
+          ₹0
+        </span>
+      </div>
+
+      <!-- Name input -->
+      <input id="rzp-name" type="text" placeholder="Your full name *"
+        style="width:100%;padding:0.65rem 0.9rem;border:1.5px solid #e2ddd6;
+               border-radius:10px;font-family:'Nunito',sans-serif;font-size:0.88rem;
+               outline:none;color:#1a1a1a;margin-bottom:0.7rem;
+               transition:border-color 0.2s;"
+        onfocus="this.style.borderColor='#2d7a3a'"
+        onblur="this.style.borderColor='#e2ddd6'"/>
+
+      <!-- Phone input -->
+      <input id="rzp-phone" type="tel" placeholder="Phone number *" maxlength="10"
+        style="width:100%;padding:0.65rem 0.9rem;border:1.5px solid #e2ddd6;
+               border-radius:10px;font-family:'Nunito',sans-serif;font-size:0.88rem;
+               outline:none;color:#1a1a1a;margin-bottom:0.7rem;
+               transition:border-color 0.2s;"
+        onfocus="this.style.borderColor='#2d7a3a'"
+        onblur="this.style.borderColor='#e2ddd6'"/>
+
+      <!-- Address input -->
+      <textarea id="rzp-address" placeholder="Delivery address (optional)" rows="2"
+        style="width:100%;padding:0.65rem 0.9rem;border:1.5px solid #e2ddd6;
+               border-radius:10px;font-family:'Nunito',sans-serif;font-size:0.88rem;
+               outline:none;color:#1a1a1a;resize:none;margin-bottom:1rem;
+               transition:border-color 0.2s;"
+        onfocus="this.style.borderColor='#2d7a3a'"
+        onblur="this.style.borderColor='#e2ddd6'"></textarea>
+
+      <!-- Error -->
+      <p id="rzp-err"
+        style="color:#dc2626;font-size:0.78rem;font-weight:600;
+               margin-bottom:0.8rem;display:none;">
+      </p>
+
+      <!-- Pay button -->
+      <button onclick="submitRzpForm()"
+        style="width:100%;background:#f47c20;border:none;color:#fff;
+               padding:0.95rem;border-radius:50px;font-family:'Baloo 2',cursive;
+               font-size:1rem;font-weight:700;cursor:pointer;
+               box-shadow:0 4px 14px rgba(244,124,32,0.35);
+               transition:background 0.2s;">
+        💳 Continue to Pay
+      </button>
+
+      <p style="font-size:0.7rem;color:#6b7280;text-align:center;margin-top:0.6rem;">
+        Secured by Razorpay 🔒
+      </p>
+    </div>
+  </div>
+</div>
 </body>
 </html>
