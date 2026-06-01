@@ -1856,27 +1856,32 @@ function submitRzpForm() {
       </p>
 
       <div style="background:#f3eeff; border:1.5px solid #5f259f;
-                  border-radius:12px; padding:1rem; text-align:center; margin-bottom:1rem;">
-        <p style="font-size:0.82rem; color:#7c7568; margin:0 0 0.4rem;">
-          Send payment to UPI ID:
-        </p>
-        <p style="font-family:'Baloo 2',cursive; font-size:1.1rem;
-                  font-weight:800; color:#5f259f; margin:0 0 0.8rem;"
-           id="upi-id-display"></p>
+            border-radius:12px; padding:1rem; text-align:center; margin-bottom:1rem;">
+  <p style="font-size:0.82rem; color:#7c7568; margin:0 0 0.4rem;">
+    Scan with PhonePe · GPay · BHIM · Paytm
+  </p>
 
-        <button onclick="triggerUpiApp()"
-          style="width:100%; background:#5f259f; color:#fff; border:none;
-                 padding:0.8rem; border-radius:50px;
-                 font-family:'Baloo 2',cursive; font-weight:700;
-                 font-size:0.95rem; cursor:pointer;
-                 box-shadow:0 4px 12px rgba(95,37,159,0.3);">
-          📱 Open PhonePe / GPay / BHIM
-        </button>
-        <p style="font-size:0.7rem; color:#7c7568; margin:0.5rem 0 0;">
-          Opens your UPI app with amount pre-filled
-        </p>
-      </div>
+  <!-- QR code renders here -->
+  <div id="upi-qr-box"
+    style="display:inline-block; background:#fff; padding:10px;
+           border-radius:8px; margin:0.4rem 0 0.6rem;">
+  </div>
 
+  <p style="font-size:0.75rem; color:#7c7568; margin:0 0 0.5rem;">
+    — or pay manually to UPI ID —
+  </p>
+  <p style="font-family:'Baloo 2',cursive; font-size:1.05rem;
+            font-weight:800; color:#5f259f; margin:0 0 0.6rem;"
+     id="upi-id-display"></p>
+
+  <button onclick="copyUpiId()"
+    style="background:#fff; border:1.5px solid #5f259f; color:#5f259f;
+           padding:0.4rem 1.2rem; border-radius:50px;
+           font-family:'Nunito',sans-serif; font-size:0.82rem;
+           font-weight:700; cursor:pointer;">
+    📋 Copy UPI ID
+  </button>
+</div>
       <!-- Step 4: UTR -->
       <p style="font-family:'Baloo 2',cursive; font-weight:700;
                 font-size:0.95rem; margin:0 0 0.5rem; color:#1e1c18;">
@@ -1942,9 +1947,159 @@ function submitRzpForm() {
   </div>
 </div>
 
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 // ════════════════════════════════════════════════════════════
+//  ⚙️  YOUR DETAILS — change only these 2 lines
+// ════════════════════════════════════════════════════════════
+const YOUR_UPI_ID       = "yourname@ybl";      // ← Your PhonePe UPI ID
+const YOUR_WHATSAPP_NO  = "91XXXXXXXXXX";       // ← 91 + your 10-digit number
+// ════════════════════════════════════════════════════════════
+
+document.getElementById('upi-id-display').textContent = YOUR_UPI_ID;
+
+let upiQrInstance = null;
+
+function openUpiCheckout() {
+  if (cart.length === 0) return;
+  closeCart();
+
+  const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const total = sub + delivery(sub);
+
+  document.getElementById('upi-amount-display').textContent = fmt(total);
+  document.getElementById('upi-btn-total').textContent = fmt(total);
+  document.getElementById('upi-overlay').style.display = 'flex';
+
+  // Build UPI QR string
+  const upiStr =
+    `upi://pay?pa=${encodeURIComponent(YOUR_UPI_ID)}` +
+    `&pn=${encodeURIComponent('Sree Sathya Store')}` +
+    `&am=${total.toFixed(2)}` +
+    `&cu=INR` +
+    `&tn=${encodeURIComponent('Sree Sathya Store Order')}`;
+
+  // Clear old QR and generate fresh one
+  const qrBox = document.getElementById('upi-qr-box');
+  qrBox.innerHTML = '';
+  upiQrInstance = new QRCode(qrBox, {
+    text: upiStr,
+    width: 180,
+    height: 180,
+    colorDark: '#5f259f',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+}
+
+function closeUpiCheckout() {
+  document.getElementById('upi-overlay').style.display = 'none';
+}
+
+function copyUpiId() {
+  navigator.clipboard.writeText(YOUR_UPI_ID)
+    .then(() => showToast('✅ UPI ID copied: ' + YOUR_UPI_ID))
+    .catch(() => showToast('UPI ID: ' + YOUR_UPI_ID));
+}
+
+function generateUpiOrderNo() {
+  const d = new Date();
+  return 'SSS' + String(d.getMonth()+1).padStart(2,'0')
+    + String(d.getDate()).padStart(2,'0')
+    + '-' + Math.floor(1000 + Math.random() * 9000);
+}
+
+async function confirmUpiOrder() {
+  const name    = document.getElementById('upi-name').value.trim();
+  const phone   = document.getElementById('upi-phone').value.trim();
+  const address = document.getElementById('upi-address').value.trim();
+  const txnId   = document.getElementById('upi-txn').value.trim();
+
+  if (!name)  { alert('Please enter your name.'); return; }
+  if (!phone || phone.length < 10) { alert('Please enter a valid 10-digit phone number.'); return; }
+
+  const sub    = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const delC   = delivery(sub);
+  const total  = sub + delC;
+  const orderNo = generateUpiOrderNo();
+
+  try {
+    await sb.from('orders').insert([{
+      order_number:     orderNo,
+      customer_name:    name,
+      customer_phone:   phone,
+      customer_address: address || null,
+      items:            cart,
+      subtotal:         sub,
+      delivery_charge:  delC,
+      total:            total,
+      payment_method:   'PhonePe UPI',
+      payment_status:   txnId ? 'paid' : 'pending',
+      upi_txn_id:       txnId || null,
+      order_status:     'new'
+    }]);
+  } catch(e) {
+    console.warn('Supabase order save failed:', e.message);
+  }
+
+  closeUpiCheckout();
+
+  const itemsText = cart
+    .map(i => `• ${i.name} ×${i.qty} = ${fmt(i.price * i.qty)}`)
+    .join('%0A');
+
+  const msg =
+    `🛒 *New Order — Sree Sathya Store*%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `📋 Order No: *${orderNo}*%0A` +
+    `👤 Name: *${name}*%0A` +
+    `📞 Phone: *${phone}*%0A` +
+    (address ? `📍 Address: ${address}%0A` : '') +
+    `━━━━━━━━━━━━━━━%0A` +
+    `*Items:*%0A${itemsText}%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `📦 Delivery: ${delC === 0 ? 'FREE' : fmt(delC)}%0A` +
+    `💰 *Total: ${fmt(total)}*%0A` +
+    `💳 Payment: PhonePe UPI%0A` +
+    (txnId ? `🔖 UTR/Txn ID: *${txnId}*` : `⏳ Payment: Pending verification`);
+
+  document.getElementById('upi-success-details').innerHTML = `
+    <div style="display:flex; justify-content:space-between;">
+      <span>Order No.</span><strong>${orderNo}</strong>
+    </div>
+    <div style="display:flex; justify-content:space-between;">
+      <span>Name</span><strong>${name}</strong>
+    </div>
+    <div style="display:flex; justify-content:space-between;">
+      <span>Total</span><strong>${fmt(total)}</strong>
+    </div>
+    <div style="display:flex; justify-content:space-between;">
+      <span>Payment</span>
+      <strong>${txnId ? '✅ Paid (UPI)' : '⏳ Pending'}</strong>
+    </div>
+  `;
+
+  document.getElementById('upi-whatsapp-link').href =
+    `https://wa.me/${YOUR_WHATSAPP_NO}?text=${msg}`;
+
+  document.getElementById('upi-success-overlay').style.display = 'flex';
+  clearCart();
+}
+
+function closeUpiSuccess() {
+  document.getElementById('upi-success-overlay').style.display = 'none';
+}
+
+const _origUpdateCartUI = updateCartUI;
+updateCartUI = function() {
+  _origUpdateCartUI();
+  const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const total = sub + delivery(sub);
+  const el = document.getElementById('upi-btn-total');
+  if (el) el.textContent = fmt(total);
+};
+</script>
+════════════════════════════════════════════════════════════
 //  ⚙️  YOUR DETAILS — change only these 2 lines
 // ════════════════════════════════════════════════════════════
 const YOUR_UPI_ID       = "ramprasathr17-1@okaxis";      // ← Your PhonePe UPI ID
