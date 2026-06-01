@@ -1847,56 +1847,8 @@ function submitRzpForm() {
         <span id="upi-amount-display"
           style="font-family:'Baloo 2',cursive; font-size:1.4rem;
                  font-weight:800; color:#5f259f;">₹0</span>
-      </<!-- Step 3: Pay -->
-<p style="font-family:'Baloo 2',cursive; font-weight:700;
-          font-size:0.95rem; margin:0 0 0.7rem; color:#1e1c18;">
+      </div>
 
-  3. Pay using UPI
-</p>
-
-<div style="background:#f3eeff; border:1.5px solid #5f259f;
-            border-radius:12px; padding:1rem; text-align:center; margin-bottom:1rem;">
-
-  <p style="font-size:0.82rem; color:#7c7568; margin:0 0 0.4rem;">
-    Send payment to UPI ID:
-  </p>
-
-  <p id="upi-id-display"
-     style="font-family:'Baloo 2',cursive; font-size:1.1rem;
-            font-weight:800; color:#5f259f; margin:0 0 0.8rem;">
-  </p>
-
-  <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; margin-bottom:0.8rem;">
-    <button type="button" onclick="copyUpiId()"
-      style="background:#fff; color:#5f259f; border:1.5px solid #5f259f;
-             padding:0.78rem; border-radius:50px;
-             font-family:'Baloo 2',cursive; font-weight:700;
-             font-size:0.9rem; cursor:pointer;">
-      📋 Copy UPI ID
-    </button>
-
-    <button type="button" onclick="openUpiIntent()"
-      style="background:#5f259f; color:#fff; border:none;
-             padding:0.78rem; border-radius:50px;
-             font-family:'Baloo 2',cursive; font-weight:700;
-             font-size:0.9rem; cursor:pointer;
-             box-shadow:0 4px 12px rgba(95,37,159,0.3);">
-      📱 Open UPI App
-    </button>
-  </div>
-
-  <div style="background:#fff; border-radius:10px; padding:0.9rem; margin-bottom:0.7rem;">
-    <p style="font-size:0.78rem; color:#7c7568; margin:0 0 0.5rem;">
-      QR code for manual payment
-    </p>
-    <img id="upi-qr-image" alt="UPI QR Code"
-      style="width:220px; height:220px; object-fit:contain; margin:0 auto; border-radius:8px;" />
-  </div>
-
-  <p style="font-size:0.74rem; color:#7c7568; margin:0; line-height:1.5;">
-    If your payment app does not open or shows an error, scan the QR code in PhonePe, GPay, Paytm, or BHIM and then enter the UTR below.
-  </p>
-</div>
       <!-- Step 3: Pay -->
       <p style="font-family:'Baloo 2',cursive; font-weight:700;
                 font-size:0.95rem; margin:0 0 0.7rem; color:#1e1c18;">
@@ -1992,43 +1944,26 @@ function submitRzpForm() {
 
 
 <script>
-const YOUR_UPI_ID = "7094148820@upi";
-const YOUR_WHATSAPP_NO = "917094148820";
+// ════════════════════════════════════════════════════════════
+//  ⚙️  YOUR DETAILS — change only these 2 lines
+// ════════════════════════════════════════════════════════════
+const YOUR_UPI_ID       = "ramprasathr17-1@okaxis";      // ← Your PhonePe UPI ID
+const YOUR_WHATSAPP_NO  = "917094148820";       // ← 91 + your 10-digit number
+// ════════════════════════════════════════════════════════════
 
+// Show UPI ID in modal
 document.getElementById('upi-id-display').textContent = YOUR_UPI_ID;
 
-function getUpiPaymentData() {
-  const name = document.getElementById('upi-name').value.trim() || 'Customer';
-  const sub = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const total = sub + delivery(sub);
-
-  const params = new URLSearchParams({
-    pa: YOUR_UPI_ID,
-    pn: 'Sree Sathya Store',
-    am: total.toFixed(2),
-    cu: 'INR',
-    tn: 'Order - Sree Sathya Store - ' + name
-  });
-
-  return {
-    total,
-    upiUrl: `upi://pay?${params.toString()}`
-  };
-}
-
+// Open UPI checkout modal
 function openUpiCheckout() {
   if (cart.length === 0) return;
   closeCart();
 
-  const { total, upiUrl } = getUpiPaymentData();
+  const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const total = sub + delivery(sub);
 
   document.getElementById('upi-amount-display').textContent = fmt(total);
   document.getElementById('upi-btn-total').textContent = fmt(total);
-  document.getElementById('upi-id-display').textContent = YOUR_UPI_ID;
-
-  const qrUrl = `https://quickchart.io/qr?size=220&text=${encodeURIComponent(upiUrl)}`;
-  document.getElementById('upi-qr-image').src = qrUrl;
-
   document.getElementById('upi-overlay').style.display = 'flex';
 }
 
@@ -2036,87 +1971,79 @@ function closeUpiCheckout() {
   document.getElementById('upi-overlay').style.display = 'none';
 }
 
-function copyUpiId() {
-  navigator.clipboard.writeText(YOUR_UPI_ID)
-    .then(() => {
-      if (typeof showToast === 'function') {
-        showToast('✅ UPI ID copied: ' + YOUR_UPI_ID);
-      } else {
-        alert('UPI ID copied: ' + YOUR_UPI_ID);
-      }
-    })
-    .catch(() => {
-      alert('Copy failed. Please copy manually: ' + YOUR_UPI_ID);
-    });
-}
+// Deep-link opens PhonePe / GPay / BHIM with amount pre-filled
+function triggerUpiApp() {
+  const name  = document.getElementById('upi-name').value.trim() || 'Customer';
+  const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const total = sub + delivery(sub);
 
-function openUpiIntent() {
-  const { upiUrl } = getUpiPaymentData();
+  const upiUrl =
+    `upi://pay?pa=${encodeURIComponent(YOUR_UPI_ID)}` +
+    `&pn=${encodeURIComponent('Sree Sathya Store')}` +
+    `&am=${total.toFixed(2)}` +
+    `&cu=INR` +
+    `&tn=${encodeURIComponent('Order - Sree Sathya Store - ' + name)}`;
 
-  const a = document.createElement('a');
-  a.href = upiUrl;
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  window.location.href = upiUrl;
 
   setTimeout(() => {
-    if (typeof showToast === 'function') {
-      showToast('If app did not open, scan QR or pay manually to ' + YOUR_UPI_ID);
-    } else {
-      alert('If app did not open, scan QR or pay manually to ' + YOUR_UPI_ID);
-    }
-  }, 1500);
+    showToast('📱 If app did not open, pay manually to: ' + YOUR_UPI_ID);
+  }, 1800);
 }
 
+// Generate order number
 function generateUpiOrderNo() {
   const d = new Date();
-  return 'SSS' + String(d.getMonth() + 1).padStart(2, '0')
-    + String(d.getDate()).padStart(2, '0')
+  return 'SSS' + String(d.getMonth()+1).padStart(2,'0')
+    + String(d.getDate()).padStart(2,'0')
     + '-' + Math.floor(1000 + Math.random() * 9000);
 }
 
+// Confirm order — saves to Supabase + shows WhatsApp
 async function confirmUpiOrder() {
-  const name = document.getElementById('upi-name').value.trim();
-  const phone = document.getElementById('upi-phone').value.trim();
+  const name    = document.getElementById('upi-name').value.trim();
+  const phone   = document.getElementById('upi-phone').value.trim();
   const address = document.getElementById('upi-address').value.trim();
-  const txnId = document.getElementById('upi-txn').value.trim();
+  const txnId   = document.getElementById('upi-txn').value.trim();
 
-  if (!name) { alert('Please enter your name.'); return; }
+  if (!name)  { alert('Please enter your name.'); return; }
   if (!phone || phone.length < 10) { alert('Please enter a valid 10-digit phone number.'); return; }
 
-  const sub = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const delC = delivery(sub);
-  const total = sub + delC;
+  const sub    = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const delC   = delivery(sub);
+  const total  = sub + delC;
   const orderNo = generateUpiOrderNo();
 
+  // Save to Supabase (orders table must exist — run orders-table.sql)
   try {
     await sb.from('orders').insert([{
-      order_number: orderNo,
-      customer_name: name,
-      customer_phone: phone,
+      order_number:     orderNo,
+      customer_name:    name,
+      customer_phone:   phone,
       customer_address: address || null,
-      items: cart,
-      subtotal: sub,
-      delivery_charge: delC,
-      total: total,
-      payment_method: 'UPI',
-      payment_status: txnId ? 'paid' : 'pending',
-      upi_txn_id: txnId || null,
-      order_status: 'new'
+      items:            cart,
+      subtotal:         sub,
+      delivery_charge:  delC,
+      total:            total,
+      payment_method:   'PhonePe UPI',
+      payment_status:   txnId ? 'paid' : 'pending',
+      upi_txn_id:       txnId || null,
+      order_status:     'new'
     }]);
-  } catch (e) {
+  } catch(e) {
     console.warn('Supabase order save failed:', e.message);
+    // Continue anyway — WhatsApp notification still works
   }
 
   closeUpiCheckout();
 
+  // Build WhatsApp message for you (the owner)
   const itemsText = cart
     .map(i => `• ${i.name} ×${i.qty} = ${fmt(i.price * i.qty)}`)
     .join('%0A');
 
   const msg =
-    `🛒 *New Order — Sree Sathya Store*%0A` +
+    `🛒 *Order Confirmed — Sree Sathya Store*%0A` +
     `━━━━━━━━━━━━━━━%0A` +
     `📋 Order No: *${orderNo}*%0A` +
     `👤 Name: *${name}*%0A` +
@@ -2127,9 +2054,13 @@ async function confirmUpiOrder() {
     `━━━━━━━━━━━━━━━%0A` +
     `📦 Delivery: ${delC === 0 ? 'FREE' : fmt(delC)}%0A` +
     `💰 *Total: ${fmt(total)}*%0A` +
-    `💳 Payment: UPI%0A` +
-    (txnId ? `🔖 UTR/Txn ID: *${txnId}*` : `⏳ Payment: Pending verification`);
+    `💳 Payment: PhonePe UPI%0A` +
+    (txnId ? `🔖 UTR/Txn ID: *${txnId}*%0A` : `⏳ Payment: Pending%0A`) +
+    `━━━━━━━━━━━━━━━%0A` +
+    `🔍 *Track your order:*%0A` +
+    `https://sreesathyastore.github.io/Sree-sathya-store/track-order.html?order=${orderNo}`;
 
+  // Show success screen
   document.getElementById('upi-success-details').innerHTML = `
     <div style="display:flex; justify-content:space-between;">
       <span>Order No.</span><strong>${orderNo}</strong>
@@ -2157,15 +2088,15 @@ function closeUpiSuccess() {
   document.getElementById('upi-success-overlay').style.display = 'none';
 }
 
+// Keep UPI total in sync when cart changes
 const _origUpdateCartUI = updateCartUI;
 updateCartUI = function() {
   _origUpdateCartUI();
-  const sub = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const total = sub + delivery(sub);
   const el = document.getElementById('upi-btn-total');
   if (el) el.textContent = fmt(total);
 };
-</script>
 
 
 </script>
