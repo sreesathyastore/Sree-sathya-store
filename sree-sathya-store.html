@@ -8,7 +8,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
+<!-- Remove old one if exists and replace with this -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+  integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSe2uAtouO9khiTD4f8J/on9pO8UQMbOAQCQ=="
+  crossorigin="anonymous"></script>
   <style>
     /* ══════════════════════════════════════════
        🔑 CONFIG — Replace with YOUR Supabase keys
@@ -1450,8 +1453,21 @@ function cartQty(id, delta) {
   if (qn && item) qn.textContent = item.qty;
 }
 
-function openCart()  { document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('cart-overlay').classList.add('open'); }
-function closeCart() { document.getElementById('cart-sidebar').classList.remove('open'); document.getElementById('cart-overlay').classList.remove('open'); }
+function openCart() {
+  document.getElementById('cart-sidebar').classList.add('open');
+  document.getElementById('cart-overlay').classList.add('open');
+  // Hide floating button when cart opens
+  const btn = document.getElementById('track-float-btn');
+  if (btn) btn.style.opacity = '0';
+}
+
+function closeCart() {
+  document.getElementById('cart-sidebar').classList.remove('open');
+  document.getElementById('cart-overlay').classList.remove('open');
+  // Show floating button when cart closes
+  const btn = document.getElementById('track-float-btn');
+  if (btn) btn.style.opacity = '1';
+}
 // ══════════════════════════════════════════
 // RAZORPAY — Complete Working Flow
 // ══════════════════════════════════════════
@@ -1860,7 +1876,7 @@ function generateQRFallback() {
 
 </script> 
 <div id="upi-overlay"
-  style="position:fixed; inset:0; z-index:500;
+  style="position:fixed; inset:0; z-index:600;
          background:rgba(0,0,0,0.55); backdrop-filter:blur(4px);
          display:none; align-items:center; justify-content:center; padding:1.5rem;">
 
@@ -2045,16 +2061,26 @@ function openUpiCheckout() {
   if (cart.length === 0) return;
   closeCart();
 
+  // Calculate totals
   const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const total = sub + delivery(sub);
+  const delC  = delivery(sub);
+  const total = sub + delC;
 
+  // Update amount displays
+  document.getElementById('upi-pay-amount').textContent    = fmt(total);
   document.getElementById('upi-amount-display').textContent = fmt(total);
-  document.getElementById('upi-btn-total').textContent = fmt(total);
+  document.getElementById('upi-steps-amount').textContent  = fmt(total);
+  document.getElementById('upi-btn-total').textContent     = fmt(total);
+
+  // Update UPI ID display
+  document.getElementById('upi-id-text').textContent = YOUR_UPI_ID;
+  document.getElementById('upi-id-display').textContent = YOUR_UPI_ID;
+
+  // Generate QR with correct amount
+  generateUpiQR(total);
+
+  // Show modal
   document.getElementById('upi-overlay').style.display = 'flex';
-  // Update UPI ID display and amounts
-  document.getElementById('upi-id-text').textContent    = YOUR_UPI_ID;
-  document.getElementById('upi-pay-amount').textContent = fmt(total);
-  document.getElementById('upi-steps-amount').textContent = fmt(total);
 }
 
 function closeUpiCheckout() {
@@ -2191,13 +2217,26 @@ updateCartUI = function() {
 // ── Auto Generate UPI QR Code ────────────
 function generateUpiQR(total) {
   const qrContainer = document.getElementById('upi-qr-code');
+  if (!qrContainer) return;
 
-  // Clear previous QR
+  // Clear old QR
   qrContainer.innerHTML = '';
 
-  // Build UPI payment string
-  // This is the standard UPI deep link format
-  // all QR scanner apps understand
+  // Check library loaded
+  if (typeof QRCode === 'undefined') {
+    qrContainer.innerHTML = `
+      <div style="width:180px;height:180px;display:flex;flex-direction:column;
+        align-items:center;justify-content:center;background:#f3eeff;
+        border-radius:8px;text-align:center;padding:1rem;">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">📱</div>
+        <span style="font-size:0.75rem;color:#5f259f;font-weight:600;">
+          Use Copy UPI ID button below
+        </span>
+      </div>`;
+    return;
+  }
+
+  // UPI standard string — works with all apps
   const upiString =
     `upi://pay?pa=${encodeURIComponent(YOUR_UPI_ID)}` +
     `&pn=${encodeURIComponent('Sree Sathya Store')}` +
@@ -2205,38 +2244,25 @@ function generateUpiQR(total) {
     `&cu=INR` +
     `&tn=${encodeURIComponent('Payment to Sree Sathya Store')}`;
 
-  // Generate QR
-  try {
-    new QRCode(qrContainer, {
-      text:          upiString,
-      width:         180,
-      height:        180,
-      colorDark:     '#5f259f',   // purple dots
-      colorLight:    '#ffffff',   // white background
-      correctLevel:  QRCode.CorrectLevel.H  // high error correction
-    });
-  } catch(e) {
-    qrContainer.innerHTML = `
-      <div style="width:180px;height:180px;display:flex;flex-direction:column;
-        align-items:center;justify-content:center;background:#f3eeff;
-        border-radius:8px;font-size:0.75rem;color:#5f259f;text-align:center;padding:1rem;">
-        <div style="font-size:2rem;margin-bottom:0.5rem;">📱</div>
-        <strong>Use Copy UPI ID</strong><br>button below
-      </div>`;
-  }
+  new QRCode(qrContainer, {
+    text:         upiString,
+    width:        180,
+    height:       180,
+    colorDark:    '#5f259f',
+    colorLight:   '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
 }
 
 </script>
-<a href="track-order.html"
-  style="position:fixed; bottom:5rem; right:1.2rem; z-index:150;
+<a href="track-order.html" id="track-float-btn"
+  style="position:fixed; bottom:1.2rem; left:1.2rem; z-index:50;
          background:#2d7a3a; color:#fff; text-decoration:none;
-         padding:0.6rem 1rem; border-radius:50px;
+         padding:0.55rem 1rem; border-radius:50px;
          font-family:'Baloo 2',cursive; font-size:0.82rem; font-weight:700;
          box-shadow:0 4px 16px rgba(45,122,58,0.4);
          display:flex; align-items:center; gap:0.4rem;
-         transition:transform 0.2s;"
-  onmouseover="this.style.transform='scale(1.05)'"
-  onmouseout="this.style.transform='scale(1)'">
+         transition:transform 0.2s, opacity 0.2s;">
   🔍 Track Order
 </a>
 <!-- ══ RAZORPAY DETAILS MODAL ══ -->
