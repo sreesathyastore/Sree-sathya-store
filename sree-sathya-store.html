@@ -7,11 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<!-- Remove old one if exists and replace with this -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
-  integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSe2uAtouO9khiTD4f8J/on9pO8UQMbOAQCQ=="
-  crossorigin="anonymous"></script>
+
   <style>
     /* ══════════════════════════════════════════
        🔑 CONFIG — Replace with YOUR Supabase keys
@@ -973,91 +969,49 @@
   💳 Pay with Razorpay
 </button>
 
-<!-- ── UPI PAYMENT OPTIONS ── -->
-<p style="font-family:'Baloo 2',cursive;font-weight:700;
-          font-size:0.95rem;margin:0 0 0.8rem;color:#1e1c18;">
-  3. Pay using any UPI App
-</p>
+<button onclick="openUpiCheckout()"
+  style="width:100%; background:#09d6bb; border:none; color:#fff;
+         padding:0.9rem 1rem; font-family:'Baloo 2',cursive;
+         font-size:1rem; font-weight:700; letter-spacing:0.02em;
+         cursor:pointer; border-radius:50px; margin-bottom:0.6rem;
+         box-shadow:0 4px 14px rgba(17, 75, 5, 0.3);
+         display:flex; align-items:center; justify-content:center; gap:0.5rem;
+         transition:background 0.2s;">
+  📱 Pay via GPay / UPI  <span id="upi-btn-total"></span>
+</button>
 
-<!-- Amount reminder -->
-<div style="background:#f3eeff;border-radius:10px;padding:0.7rem 1rem;
-            display:flex;justify-content:space-between;align-items:center;
-            margin-bottom:1rem;">
-  <span style="font-size:0.82rem;color:#5f259f;font-weight:600;">Pay this amount</span>
-  <span id="upi-pay-amount"
-    style="font-family:'Baloo 2',cursive;font-size:1.4rem;
-           font-weight:800;color:#5f259f;">₹0</span>
-</div>
+<button class="clear-btn" onclick="clearCart()">Clear Cart</button>
 
-<!-- QR CODE -->
-<div style="text-align:center;margin-bottom:1rem;">
-  <p style="font-size:0.75rem;color:#6b7280;margin-bottom:0.6rem;font-weight:600;">
-    📷 Scan QR with PhonePe / GPay / BHIM / Paytm
-  </p>
-  <!-- QR CODE — Auto Generated -->
-<div style="text-align:center;margin-bottom:1rem;">
-  <p style="font-size:0.75rem;color:#6b7280;margin-bottom:0.6rem;font-weight:600;">
-    📷 Scan with PhonePe / GPay / BHIM / Paytm
-  </p>
-  <div style="display:inline-block;background:#fff;
-              border:2px solid #5f259f;border-radius:12px;padding:10px;">
-    <div id="upi-qr-code"></div>
   </div>
-  <p style="font-size:0.7rem;color:#6b7280;margin-top:0.5rem;">
-    Scan QR → amount auto-fills in your app
-  </p>
-</div>
-  <p style="font-size:0.7rem;color:#6b7280;margin-top:0.5rem;">
-    Open any UPI app → Scan QR → Amount auto-fills
-  </p>
-</div>
+</aside>
 
-<!-- Divider -->
-<div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:1rem;">
-  <div style="flex:1;height:1px;background:#e2ddd6;"></div>
-  <span style="font-size:0.72rem;color:#6b7280;font-weight:600;">OR</span>
-  <div style="flex:1;height:1px;background:#e2ddd6;"></div>
-</div>
-
-<!-- UPI ID + Copy button -->
-<div style="background:#f8f9fa;border:1.5px solid #e2ddd6;border-radius:10px;
-            padding:0.8rem 1rem;margin-bottom:1rem;">
-  <p style="font-size:0.7rem;color:#6b7280;font-weight:700;
-            text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem;">
-    UPI ID
-  </p>
-  <div style="display:flex;align-items:center;justify-content:space-between;gap:0.6rem;">
-    <span id="upi-id-text"
-      style="font-family:'Baloo 2',cursive;font-size:1rem;
-             font-weight:700;color:#1e1c18;word-break:break-all;">
-      <!-- filled by JS -->
-    </span>
-    <button onclick="copyUpiId()"
-      id="copy-upi-btn"
-      style="background:#5f259f;color:#fff;border:none;
-             padding:0.45rem 1rem;border-radius:50px;
-             font-family:'Nunito',sans-serif;font-size:0.78rem;
-             font-weight:700;cursor:pointer;white-space:nowrap;
-             transition:background 0.2s;flex-shrink:0;">
-      📋 Copy
-    </button>
+<!-- ══ PRODUCT MODAL ══ -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleModalBg(event)">
+  <div class="modal-box" id="modal-box">
+    <div class="modal-img-col" id="modal-img-col">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-cat"  id="m-cat"></p>
+      <h2 class="modal-name" id="m-name"></h2>
+      <p class="modal-unit" id="m-unit"></p>
+      <div class="modal-price-row">
+        <span class="modal-price"  id="m-price"></span>
+        <span class="modal-original" id="m-orig"></span>
+        <span class="modal-save" id="m-save" style="display:none"></span>
+      </div>
+      <p class="modal-desc" id="m-desc"></p>
+      <div class="modal-stock-row">
+        <span class="stock-dot" id="m-dot"></span>
+        <span id="m-stock"></span>
+      </div>
+      <button class="modal-add-btn" id="m-add-btn">🛒 Add to Cart</button>
+    </div>
   </div>
 </div>
 
-<!-- Steps guide -->
-<div style="background:#e8f5eb;border-radius:10px;padding:0.8rem 1rem;margin-bottom:1rem;">
-  <p style="font-size:0.75rem;font-weight:700;color:#2d7a3a;margin-bottom:0.5rem;">
-    How to pay:
-  </p>
-  <div style="font-size:0.75rem;color:#166534;line-height:2;">
-    1️⃣ Open PhonePe / GPay / Paytm<br>
-    2️⃣ Tap <strong>Send Money / Pay</strong><br>
-    3️⃣ Paste UPI ID or Scan QR above<br>
-    4️⃣ Enter amount: <strong id="upi-steps-amount">₹0</strong><br>
-    5️⃣ Pay → Copy the <strong>UTR number</strong><br>
-    6️⃣ Paste UTR below and confirm order
-  </div>
-</div>
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast">✓ <span id="toast-msg"></span></div>
 
 <!-- ══ FOOTER ══ -->
 <footer>
@@ -1453,21 +1407,8 @@ function cartQty(id, delta) {
   if (qn && item) qn.textContent = item.qty;
 }
 
-function openCart() {
-  document.getElementById('cart-sidebar').classList.add('open');
-  document.getElementById('cart-overlay').classList.add('open');
-  // Hide floating button when cart opens
-  const btn = document.getElementById('track-float-btn');
-  if (btn) btn.style.opacity = '0';
-}
-
-function closeCart() {
-  document.getElementById('cart-sidebar').classList.remove('open');
-  document.getElementById('cart-overlay').classList.remove('open');
-  // Show floating button when cart closes
-  const btn = document.getElementById('track-float-btn');
-  if (btn) btn.style.opacity = '1';
-}
+function openCart()  { document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('cart-overlay').classList.add('open'); }
+function closeCart() { document.getElementById('cart-sidebar').classList.remove('open'); document.getElementById('cart-overlay').classList.remove('open'); }
 // ══════════════════════════════════════════
 // RAZORPAY — Complete Working Flow
 // ══════════════════════════════════════════
@@ -1829,54 +1770,11 @@ function submitRzpForm() {
     rzpPayload.sub, rzpPayload.delC, rzpPayload.total);
 }
 
-// ── Copy UPI ID ──────────────────────────
-function copyUpiId() {
-  const btn = document.getElementById('copy-upi-btn');
-
-  navigator.clipboard.writeText(YOUR_UPI_ID)
-    .then(() => {
-      // Show copied feedback
-      btn.textContent = '✅ Copied!';
-      btn.style.background = '#2d7a3a';
-      showToast('✅ UPI ID copied! Open your payment app and paste.');
-      setTimeout(() => {
-        btn.textContent = '📋 Copy';
-        btn.style.background = '#5f259f';
-      }, 2500);
-    })
-    .catch(() => {
-      // Fallback for older browsers
-      const el = document.createElement('textarea');
-      el.value = YOUR_UPI_ID;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand('copy');
-      document.body.removeChild(el);
-      btn.textContent = '✅ Copied!';
-      btn.style.background = '#2d7a3a';
-      setTimeout(() => {
-        btn.textContent = '📋 Copy';
-        btn.style.background = '#5f259f';
-      }, 2500);
-    });
-}
-
-// ── QR fallback if image not found ───────
-function generateQRFallback() {
-  return `<div style="width:180px;height:180px;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;background:#f3eeff;border-radius:8px;
-    font-size:0.75rem;color:#5f259f;text-align:center;padding:1rem;">
-    <div style="font-size:2rem;margin-bottom:0.5rem;">📱</div>
-    <strong>Scan not available</strong><br>
-    Use Copy UPI ID button above
-  </div>`;
-}
-
 
 
 </script> 
 <div id="upi-overlay"
-  style="position:fixed; inset:0; z-index:600;
+  style="position:fixed; inset:0; z-index:500;
          background:rgba(0,0,0,0.55); backdrop-filter:blur(4px);
          display:none; align-items:center; justify-content:center; padding:1.5rem;">
 
@@ -2061,25 +1959,11 @@ function openUpiCheckout() {
   if (cart.length === 0) return;
   closeCart();
 
-  // Calculate totals
   const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const delC  = delivery(sub);
-  const total = sub + delC;
+  const total = sub + delivery(sub);
 
-  // Update amount displays
-  document.getElementById('upi-pay-amount').textContent    = fmt(total);
   document.getElementById('upi-amount-display').textContent = fmt(total);
-  document.getElementById('upi-steps-amount').textContent  = fmt(total);
-  document.getElementById('upi-btn-total').textContent     = fmt(total);
-
-  // Update UPI ID display
-  document.getElementById('upi-id-text').textContent = YOUR_UPI_ID;
-  document.getElementById('upi-id-display').textContent = YOUR_UPI_ID;
-
-  // Generate QR with correct amount
-  generateUpiQR(total);
-
-  // Show modal
+  document.getElementById('upi-btn-total').textContent = fmt(total);
   document.getElementById('upi-overlay').style.display = 'flex';
 }
 
@@ -2214,55 +2098,18 @@ updateCartUI = function() {
   if (el) el.textContent = fmt(total);
 };
 
-// ── Auto Generate UPI QR Code ────────────
-function generateUpiQR(total) {
-  const qrContainer = document.getElementById('upi-qr-code');
-  if (!qrContainer) return;
-
-  // Clear old QR
-  qrContainer.innerHTML = '';
-
-  // Check library loaded
-  if (typeof QRCode === 'undefined') {
-    qrContainer.innerHTML = `
-      <div style="width:180px;height:180px;display:flex;flex-direction:column;
-        align-items:center;justify-content:center;background:#f3eeff;
-        border-radius:8px;text-align:center;padding:1rem;">
-        <div style="font-size:2rem;margin-bottom:0.5rem;">📱</div>
-        <span style="font-size:0.75rem;color:#5f259f;font-weight:600;">
-          Use Copy UPI ID button below
-        </span>
-      </div>`;
-    return;
-  }
-
-  // UPI standard string — works with all apps
-  const upiString =
-    `upi://pay?pa=${encodeURIComponent(YOUR_UPI_ID)}` +
-    `&pn=${encodeURIComponent('Sree Sathya Store')}` +
-    `&am=${total.toFixed(2)}` +
-    `&cu=INR` +
-    `&tn=${encodeURIComponent('Payment to Sree Sathya Store')}`;
-
-  new QRCode(qrContainer, {
-    text:         upiString,
-    width:        180,
-    height:       180,
-    colorDark:    '#5f259f',
-    colorLight:   '#ffffff',
-    correctLevel: QRCode.CorrectLevel.H
-  });
-}
 
 </script>
-<a href="track-order.html" id="track-float-btn"
-  style="position:fixed; bottom:1.2rem; left:1.2rem; z-index:50;
+<a href="track-order.html"
+  style="position:fixed; bottom:5rem; right:1.2rem; z-index:150;
          background:#2d7a3a; color:#fff; text-decoration:none;
-         padding:0.55rem 1rem; border-radius:50px;
+         padding:0.6rem 1rem; border-radius:50px;
          font-family:'Baloo 2',cursive; font-size:0.82rem; font-weight:700;
          box-shadow:0 4px 16px rgba(45,122,58,0.4);
          display:flex; align-items:center; gap:0.4rem;
-         transition:transform 0.2s, opacity 0.2s;">
+         transition:transform 0.2s;"
+  onmouseover="this.style.transform='scale(1.05)'"
+  onmouseout="this.style.transform='scale(1)'">
   🔍 Track Order
 </a>
 <!-- ══ RAZORPAY DETAILS MODAL ══ -->
