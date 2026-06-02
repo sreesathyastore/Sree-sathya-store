@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
     /* ══════════════════════════════════════════
@@ -990,13 +991,19 @@
   <p style="font-size:0.75rem;color:#6b7280;margin-bottom:0.6rem;font-weight:600;">
     📷 Scan QR with PhonePe / GPay / BHIM / Paytm
   </p>
-  <div style="display:inline-block;background:#fff;border:2px solid #5f259f;
-              border-radius:12px;padding:10px;">
-    <img src="upi-qr.png"
-      alt="UPI QR Code"
-      style="width:180px;height:180px;display:block;"
-      onerror="this.parentElement.innerHTML=generateQRFallback()"/>
+  <!-- QR CODE — Auto Generated -->
+<div style="text-align:center;margin-bottom:1rem;">
+  <p style="font-size:0.75rem;color:#6b7280;margin-bottom:0.6rem;font-weight:600;">
+    📷 Scan with PhonePe / GPay / BHIM / Paytm
+  </p>
+  <div style="display:inline-block;background:#fff;
+              border:2px solid #5f259f;border-radius:12px;padding:10px;">
+    <div id="upi-qr-code"></div>
   </div>
+  <p style="font-size:0.7rem;color:#6b7280;margin-top:0.5rem;">
+    Scan QR → amount auto-fills in your app
+  </p>
+</div>
   <p style="font-size:0.7rem;color:#6b7280;margin-top:0.5rem;">
     Open any UPI app → Scan QR → Amount auto-fills
   </p>
@@ -2045,7 +2052,7 @@ function openUpiCheckout() {
   document.getElementById('upi-btn-total').textContent = fmt(total);
   document.getElementById('upi-overlay').style.display = 'flex';
   // Update UPI ID display and amounts
-  document.getElementById('upi-id-text').textContent   = YOUR_UPI_ID;
+  document.getElementById('upi-id-text').textContent    = YOUR_UPI_ID;
   document.getElementById('upi-pay-amount').textContent = fmt(total);
   document.getElementById('upi-steps-amount').textContent = fmt(total);
 }
@@ -2181,6 +2188,43 @@ updateCartUI = function() {
   if (el) el.textContent = fmt(total);
 };
 
+// ── Auto Generate UPI QR Code ────────────
+function generateUpiQR(total) {
+  const qrContainer = document.getElementById('upi-qr-code');
+
+  // Clear previous QR
+  qrContainer.innerHTML = '';
+
+  // Build UPI payment string
+  // This is the standard UPI deep link format
+  // all QR scanner apps understand
+  const upiString =
+    `upi://pay?pa=${encodeURIComponent(YOUR_UPI_ID)}` +
+    `&pn=${encodeURIComponent('Sree Sathya Store')}` +
+    `&am=${total.toFixed(2)}` +
+    `&cu=INR` +
+    `&tn=${encodeURIComponent('Payment to Sree Sathya Store')}`;
+
+  // Generate QR
+  try {
+    new QRCode(qrContainer, {
+      text:          upiString,
+      width:         180,
+      height:        180,
+      colorDark:     '#5f259f',   // purple dots
+      colorLight:    '#ffffff',   // white background
+      correctLevel:  QRCode.CorrectLevel.H  // high error correction
+    });
+  } catch(e) {
+    qrContainer.innerHTML = `
+      <div style="width:180px;height:180px;display:flex;flex-direction:column;
+        align-items:center;justify-content:center;background:#f3eeff;
+        border-radius:8px;font-size:0.75rem;color:#5f259f;text-align:center;padding:1rem;">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">📱</div>
+        <strong>Use Copy UPI ID</strong><br>button below
+      </div>`;
+  }
+}
 
 </script>
 <a href="track-order.html"
