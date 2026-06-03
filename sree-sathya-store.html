@@ -1931,6 +1931,17 @@ function submitRzpForm() {
   <p style="font-size:0.7rem;color:#6b7280;margin-top:0.5rem;">
     Scan QR → amount auto-fills in your app
   </p>
+
+  <!-- Download button -->
+  <button onclick="downloadQR()"
+    title="Download QR Code"
+    style="margin-top:0.6rem;background:#f3eeff;border:1.5px solid #5f259f;
+           color:#5f259f;width:36px;height:36px;border-radius:50%;
+           font-size:1.1rem;cursor:pointer;display:inline-flex;
+           align-items:center;justify-content:center;
+           transition:background 0.2s;">
+    ⬇️
+  </button>
 </div>
 
 <!-- Divider -->
@@ -2289,7 +2300,35 @@ function generateUpiQR(total) {
   }
 }
 
+// ── Download QR Code ─────────────────────
+function downloadQR() {
+  const qrContainer = document.getElementById('upi-qr-code');
+  if (!qrContainer) return;
 
+  // QRCode.js generates a canvas element inside the div
+  const canvas = qrContainer.querySelector('canvas');
+
+  if (canvas) {
+    // Create download link
+    const link    = document.createElement('a');
+    link.download = 'SreeSathyaStore-UPI-QR.png';
+    link.href     = canvas.toDataURL('image/png');
+    link.click();
+    showToast('✅ QR Code downloaded!');
+  } else {
+    // QR shown as image tag (some browsers)
+    const img = qrContainer.querySelector('img');
+    if (img) {
+      const link    = document.createElement('a');
+      link.download = 'SreeSathyaStore-UPI-QR.png';
+      link.href     = img.src;
+      link.click();
+      showToast('✅ QR Code downloaded!');
+    } else {
+      showToast('QR not ready yet. Please wait.');
+    }
+  }
+}
 
 </script>
 <a href="track-order.html"
