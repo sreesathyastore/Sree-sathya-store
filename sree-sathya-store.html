@@ -1826,18 +1826,15 @@ function submitRzpForm() {
     rzpPayload.sub, rzpPayload.delC, rzpPayload.total);
 }
 
-
-
 </script> 
 
+  
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/Sree-sathya-store/sw.js', {
       scope: '/Sree-sathya-store/'
-    })
-    .then(reg => console.log('Service Worker registered', reg.scope))
-    .catch(err => console.log('Service Worker registration failed', err));
+    });
   });
 }
 </script>
