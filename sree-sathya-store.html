@@ -1833,6 +1833,19 @@ function submitRzpForm() {
 
 
 </script> 
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log('PWA ready'))
+      .catch(e => console.log('SW error:', e));
+  }
+</script>
+
+
+
+
 <div id="upi-overlay"
   style="position:fixed; inset:0; z-index:500;
          background:rgba(0,0,0,0.55); backdrop-filter:blur(4px);
@@ -2451,13 +2464,7 @@ function downloadQR() {
   </div>
 </div>
 
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-      .then(() => console.log('PWA ready'))
-      .catch(e => console.log('SW error:', e));
-  }
-</script>
+
 
 </body>
 </html>
