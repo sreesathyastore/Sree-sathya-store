@@ -2064,6 +2064,14 @@ function submitRzpForm() {
   </div>
 </div>
 
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log('PWA ready'))
+      .catch(e => console.log('SW error:', e));
+  }
+</script>
+
 
 <script>
 // ════════════════════════════════════════════════════════════
@@ -2341,13 +2349,6 @@ function downloadQR() {
 </script>
 
 
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-      .then(() => console.log('PWA ready'))
-      .catch(e => console.log('SW error:', e));
-  }
-</script>
 
 
 <a href="track-order.html"
