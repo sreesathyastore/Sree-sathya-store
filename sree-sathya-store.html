@@ -4,6 +4,14 @@
   <meta name="google-site-verification" content="wLJ2Z8yIvnl2yEKSEZ3cXdzkCj63ZnB1QMH6IGXal_Y" />
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+   <!-- PWA -->
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#2d7a3a"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Sathya Store"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
 
   <!-- ══ PRIMARY SEO ══ -->
   <title>Sree Sathya Store — Grocery & Stationery | Thikkanamcode</title>
@@ -2292,6 +2300,17 @@ function generateUpiQR(total) {
 
 
 </script>
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log('PWA ready'))
+      .catch(e => console.log('SW error:', e));
+  }
+</script>
+
+
 <a href="track-order.html"
   style="position:fixed; bottom:5rem; right:1.2rem; z-index:150;
          background:#2d7a3a; color:#fff; text-decoration:none;
