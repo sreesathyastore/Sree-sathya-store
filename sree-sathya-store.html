@@ -2465,7 +2465,89 @@ function downloadQR() {
   </div>
 </div>
 
+<!-- ══ INSTALL APP BUTTON ══ -->
+<div id="install-banner"
+  style="display:none; position:fixed; bottom:1.2rem; right:1.2rem;
+         z-index:149; animation:fadeUp 0.4s ease;">
+  <button id="install-btn" onclick="installApp()"
+    style="background:#2d7a3a; color:#fff; border:none;
+           padding:0.65rem 1.2rem; border-radius:50px;
+           font-family:'Baloo 2',cursive; font-size:0.85rem;
+           font-weight:700; cursor:pointer;
+           box-shadow:0 4px 16px rgba(45,122,58,0.4);
+           display:flex; align-items:center; gap:0.5rem;
+           transition:background 0.2s, transform 0.2s;">
+    📲 Install App
+  </button>
+</div>
 
+<script>
+// ── PWA Install Button ────────────────────
+let deferredPrompt = null;
+
+// Capture install event
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+
+  // Show install button
+  document.getElementById('install-banner').style.display = 'block';
+});
+
+// Install button clicked
+function installApp() {
+  if (!deferredPrompt) {
+    // Already installed or not supported
+    showToast('App already installed or use browser menu to install!');
+    return;
+  }
+
+  // Show browser install prompt
+  deferredPrompt.prompt();
+
+  // Wait for user response
+  deferredPrompt.userChoice.then((result) => {
+    if (result.outcome === 'accepted') {
+      showToast('🎉 App installed successfully!');
+      document.getElementById('install-banner').style.display = 'none';
+    } else {
+      showToast('You can install anytime using this button!');
+    }
+    deferredPrompt = null;
+  });
+}
+
+// Hide button if already installed
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').style.display = 'none';
+  deferredPrompt = null;
+  showToast('🎉 Sathya Store app installed!');
+});
+</script>
+
+<!-- Shows only on iPhone -->
+<div id="ios-install-tip"
+  style="display:none; position:fixed; bottom:1.2rem; right:1.2rem;
+         z-index:149; background:#fff; border:1.5px solid #2d7a3a;
+         border-radius:12px; padding:0.8rem 1rem; max-width:220px;
+         box-shadow:0 4px 16px rgba(0,0,0,0.12); font-size:0.78rem;
+         color:#1a1a1a; line-height:1.6;">
+  <button onclick="this.parentElement.style.display='none'"
+    style="float:right; background:none; border:none;
+           cursor:pointer; color:#6b7280; font-size:1rem;">✕</button>
+  <strong style="color:#2d7a3a;">📲 Install Our App</strong><br>
+  Tap <strong>Share</strong> button below<br>
+  then tap <strong>"Add to Home Screen"</strong>
+</div>
+
+<script>
+// Show tip only on iPhone
+const isIphone = /iphone/i.test(navigator.userAgent);
+const isStandalone = window.navigator.standalone;
+if (isIphone && !isStandalone) {
+  document.getElementById('ios-install-tip').style.display = 'block';
+}
+</script>
 
 </body>
 </html>
