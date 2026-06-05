@@ -5,14 +5,14 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
    <!-- PWA -->
-<link rel="manifest" href="manifest.json"/>
+<link rel="manifest" href="/Sree-sathya-store/manifest.json"/>
 <meta name="theme-color" content="#2d7a3a"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="Sathya Store"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<link rel="apple-touch-icon" href="icon-192.png"/>
-
+<link rel="apple-touch-icon" 
+  href="/Sree-sathya-store/images/icon-192.png"/>
+  
   <!-- ══ PRIMARY SEO ══ -->
   <title>Sree Sathya Store — Grocery & Stationery | Thikkanamcode</title>
   <meta name="description"
@@ -1837,12 +1837,14 @@ function submitRzpForm() {
 
 <script>
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-      .then(() => console.log('PWA ready'))
-      .catch(e => console.log('SW error:', e));
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register('/Sree-sathya-store/sw.js')
+        .then(reg => console.log('✅ SW registered:', reg.scope))
+        .catch(err => console.log('❌ SW failed:', err));
+    });
   }
 </script>
-
 
 
 

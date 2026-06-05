@@ -1,22 +1,25 @@
 {
   "name": "Sree Sathya Store",
   "short_name": "Sathya Store",
-  "description": "Grocery & Stationery Shop",
+  "description": "Grocery & Stationery Shop with Home Delivery",
   "start_url": "/Sree-sathya-store/sree-sathya-store.html",
+  "scope": "/Sree-sathya-store/",
   "display": "standalone",
   "background_color": "#2d7a3a",
   "theme_color": "#2d7a3a",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "images/icon-192.png",
+      "src": "/Sree-sathya-store/images/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "images/icon-512.png",
+      "src": "/Sree-sathya-store/images/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
