@@ -1332,6 +1332,7 @@ function renderProducts() {
 function saveCart() { localStorage.setItem('sss_cart', JSON.stringify(cart)); }
 
 function addToCart(productId) {
+  SFX.addToCart();  
   const p = allProducts.find(x => x.id === productId);
   if (!p || (p.stock !== undefined && p.stock <= 0)) return;
 
@@ -1388,6 +1389,7 @@ function updateCardAction(productId) {
 }
 
 function removeFromCart(id) {
+   SFX.remove();
   cart = cart.filter(c => c.id !== id);
   saveCart(); updateCartUI();
 }
@@ -1469,8 +1471,8 @@ function cartQty(id, delta) {
   if (qn && item) qn.textContent = item.qty;
 }
 
-function openCart()  { document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('cart-overlay').classList.add('open'); }
-function closeCart() { document.getElementById('cart-sidebar').classList.remove('open'); document.getElementById('cart-overlay').classList.remove('open'); }
+function openCart()  { SFX.openCart(); document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('cart-overlay').classList.add('open'); }
+function closeCart() { SFX.closeCart(); document.getElementById('cart-sidebar').classList.remove('open'); document.getElementById('cart-overlay').classList.remove('open'); }
 // ══════════════════════════════════════════
 // RAZORPAY — Complete Working Flow
 // ══════════════════════════════════════════
@@ -1577,6 +1579,7 @@ async function saveRazorpayOrder(name, phone, address, paymentId, sub, delC, tot
   closeCart();
 
   // Show success toast
+  SFX.orderSuccess();
   showToast(`🎉 Order ${orderNo} placed! Payment successful.`);
 
   // Build WhatsApp message to YOU (store owner)
@@ -1601,7 +1604,9 @@ async function saveRazorpayOrder(name, phone, address, paymentId, sub, delC, tot
     `🔍 Track: https://sreesathyastore.github.io/Sree-sathya-store/track-order.html?order=${orderNo}`;
 
   // Build WhatsApp message to CUSTOMER
+  
   const customerMsg =
+    
     `✅ *Order Confirmed — Sree Sathya Store*%0A` +
     `━━━━━━━━━━━━━━━%0A` +
     `📋 Order No: *${orderNo}*%0A` +
@@ -2065,6 +2070,7 @@ function submitRzpForm() {
              font-size:0.82rem; color:#2d7a3a; margin-bottom:1rem;
              text-align:left; line-height:1.9;">
     </div>
+    
     <a id="upi-whatsapp-link" href="#" target="_blank"
       style="display:block; background:#25D366; color:#fff; padding:0.75rem;
              border-radius:50px; text-decoration:none;
@@ -2159,6 +2165,7 @@ async function confirmUpiOrder() {
   const delC   = delivery(sub);
   const total  = sub + delC;
   const orderNo = generateUpiOrderNo();
+  SFX.orderSuccess(); 
 
   // Save to Supabase (orders table must exist — run orders-table.sql)
   try {
@@ -2550,6 +2557,126 @@ const isStandalone = window.navigator.standalone;
 if (isIphone && !isStandalone) {
   document.getElementById('ios-install-tip').style.display = 'block';
 }
+</script>
+
+
+<script>
+// ══════════════════════════════════════════
+// 🔊 SOUND SYSTEM — Sree Sathya Store
+// ══════════════════════════════════════════
+
+const SFX = {
+  // ── Create audio context once ──
+  _ctx: null,
+
+  getCtx() {
+    if (!this._ctx) {
+      this._ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return this._ctx;
+  },
+
+  // ── Base beep function ──
+  beep(freq, duration, type='sine', vol=0.4, delay=0) {
+    try {
+      const ctx  = this.getCtx();
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.type            = type;
+      osc.frequency.value = freq;
+
+      gain.gain.setValueAtTime(vol, ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(
+        0.001, ctx.currentTime + delay + duration
+      );
+
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + duration);
+    } catch(e) { /* silent fail */ }
+  },
+
+  // ── 🛒 Add to cart — happy pop ──
+  addToCart() {
+    this.beep(600, 0.08, 'sine', 0.3);
+    this.beep(900, 0.12, 'sine', 0.3, 0.08);
+  },
+
+  // ── ➕ Increase qty ──
+  increase() {
+    this.beep(700, 0.08, 'sine', 0.25);
+  },
+
+  // ── ➖ Decrease qty ──
+  decrease() {
+    this.beep(500, 0.08, 'sine', 0.25);
+  },
+
+  // ── 🗑️ Remove item from cart ──
+  remove() {
+    this.beep(400, 0.08, 'sine', 0.3);
+    this.beep(300, 0.12, 'sine', 0.3, 0.09);
+  },
+
+  // ── 🛍️ Open cart ──
+  openCart() {
+    this.beep(500, 0.06, 'sine', 0.2);
+    this.beep(650, 0.08, 'sine', 0.2, 0.07);
+  },
+
+  // ── ❌ Close cart ──
+  closeCart() {
+    this.beep(650, 0.06, 'sine', 0.2);
+    this.beep(500, 0.08, 'sine', 0.2, 0.07);
+  },
+
+  // ── ✅ Order confirmed — success tune ──
+  orderSuccess() {
+    this.beep(523, 0.12, 'sine', 0.4);        // C
+    this.beep(659, 0.12, 'sine', 0.4, 0.14);  // E
+    this.beep(784, 0.12, 'sine', 0.4, 0.28);  // G
+    this.beep(1047,0.25, 'sine', 0.4, 0.42);  // High C
+  },
+
+  // ── ❌ Error / failed ──
+  error() {
+    this.beep(300, 0.15, 'square', 0.3);
+    this.beep(250, 0.20, 'square', 0.3, 0.16);
+  },
+
+  // ── 📋 Copy UPI ID ──
+  copy() {
+    this.beep(800, 0.06, 'sine', 0.2);
+    this.beep(1000,0.10, 'sine', 0.2, 0.07);
+  },
+
+  // ── 🔍 Search ──
+  search() {
+    this.beep(600, 0.07, 'sine', 0.15);
+  },
+
+  // ── 🏷️ Filter category ──
+  filter() {
+    this.beep(550, 0.08, 'sine', 0.2);
+    this.beep(700, 0.08, 'sine', 0.2, 0.09);
+  },
+
+  // ── 💳 Payment button tap ──
+  payment() {
+    this.beep(440, 0.08, 'sine', 0.3);
+    this.beep(550, 0.08, 'sine', 0.3, 0.09);
+    this.beep(660, 0.12, 'sine', 0.3, 0.18);
+  },
+
+  // ── ⬇️ Download QR ──
+  download() {
+    this.beep(500, 0.08, 'sine', 0.2);
+    this.beep(700, 0.12, 'sine', 0.2, 0.09);
+  }
+};
 </script>
 
 </body>
