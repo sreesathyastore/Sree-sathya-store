@@ -1770,6 +1770,7 @@ function handleModalBg(e) { if (e.target === document.getElementById('modal-over
 
 // ── FILTERS / SORT / SEARCH ─────────────────────────
 function setCategory(cat, btn) {
+    SFX.filter();
   activeCategory = cat;
   document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -1824,10 +1825,12 @@ function submitRzpForm() {
   const errEl   = document.getElementById('rzp-err');
 
   if (!name) {
+    SFX.error();
     errEl.textContent = 'Please enter your name.';
     errEl.style.display = 'block'; return;
   }
   if (!phone || phone.length < 10) {
+    SFX.error();
     errEl.textContent = 'Please enter a valid 10-digit phone number.';
     errEl.style.display = 'block'; return;
   }
@@ -2337,6 +2340,7 @@ function generateUpiQR(total) {
 
 // ── Download QR Code ─────────────────────
 function downloadQR() {
+
   const qrContainer = document.getElementById('upi-qr-code');
   if (!qrContainer) return;
 
@@ -2358,6 +2362,7 @@ function downloadQR() {
       link.download = 'SreeSathyaStore-UPI-QR.png';
       link.href     = img.src;
       link.click();
+      SFX.download();
       showToast('✅ QR Code downloaded!');
     } else {
       showToast('QR not ready yet. Please wait.');
