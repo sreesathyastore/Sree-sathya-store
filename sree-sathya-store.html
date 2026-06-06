@@ -915,8 +915,124 @@
       .logo-wrap { order: 1; }
       .header-actions { order: 2; }
     }
+
+    /* ══ EXPERIMENTAL BANNER ══ */
+.exp-banner {
+  background: #fff8e6;
+  border-bottom: 1.5px solid #f5c800;
+  padding: 0.55rem 2rem;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap;
+}
+.exp-left { display: flex; align-items: center; gap: 0.6rem; }
+.exp-badge {
+  background: #f5c800; color: #5a4000;
+  font-size: 0.65rem; font-weight: 800;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.2rem 0.6rem; border-radius: 50px;
+  white-space: nowrap;
+}
+.exp-text { font-size: 0.8rem; color: #7a5c00; font-weight: 600; }
+.fb-btn {
+  background: #2d7a3a; color: #fff; border: none;
+  padding: 0.4rem 1rem; border-radius: 50px;
+  font-size: 0.78rem; font-weight: 700; cursor: pointer;
+  font-family: 'Nunito', sans-serif; white-space: nowrap;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(45,122,58,0.25);
+}
+.fb-btn:hover { background: #3fa052; }
+
+/* ══ FEEDBACK MODAL ══ */
+.fb-overlay {
+  position: fixed; inset: 0; z-index: 700;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center;
+  justify-content: center; padding: 1.5rem;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.fb-overlay.open { opacity: 1; pointer-events: all; }
+.fb-box {
+  background: #fff; border-radius: 16px;
+  max-width: 400px; width: 100%;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+  overflow: hidden;
+  transform: scale(0.93);
+  transition: transform 0.3s;
+}
+.fb-overlay.open .fb-box { transform: scale(1); }
+.fb-head {
+  background: #2d7a3a; padding: 1.2rem 1.5rem;
+  display: flex; align-items: center;
+  justify-content: space-between;
+}
+.fb-head h2 {
+  font-family: 'Baloo 2', cursive; color: #fff;
+  font-size: 1.1rem; font-weight: 700; margin: 0;
+}
+.fb-head p { color: rgba(255,255,255,0.75); font-size: 0.7rem; margin: 0.15rem 0 0; }
+.fb-close {
+  background: rgba(255,255,255,0.15); border: none;
+  color: #fff; width: 30px; height: 30px;
+  border-radius: 50%; cursor: pointer; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.fb-close:hover { background: rgba(255,255,255,0.25); }
+.fb-body { padding: 1.4rem 1.5rem; }
+.fb-stars { display: flex; gap: 0.4rem; margin-bottom: 1rem; }
+.star {
+  font-size: 1.6rem; cursor: pointer;
+  transition: transform 0.1s;
+  filter: grayscale(1); opacity: 0.35;
+}
+.star.active { filter: none; opacity: 1; }
+.star:hover { transform: scale(1.2); }
+.fb-label {
+  font-size: 0.78rem; font-weight: 700;
+  color: #1e1c18; margin-bottom: 0.4rem;
+}
+.fb-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+.chip {
+  background: #f6f4f0; border: 1.5px solid #e2ddd6;
+  border-radius: 50px; padding: 0.25rem 0.75rem;
+  font-size: 0.72rem; font-weight: 600;
+  cursor: pointer; color: #7c7568;
+  transition: all 0.15s;
+}
+.chip.selected { background: #e8f5eb; border-color: #2d7a3a; color: #2d7a3a; }
+.fb-textarea {
+  width: 100%; padding: 0.65rem 0.9rem;
+  border: 1.5px solid #e2ddd6; border-radius: 10px;
+  font-family: 'Nunito', sans-serif; font-size: 0.85rem;
+  outline: none; resize: none; color: #1e1c18;
+  transition: border-color 0.2s; box-sizing: border-box;
+}
+.fb-textarea:focus { border-color: #2d7a3a; }
+.fb-submit {
+  width: 100%; background: #f47c20; border: none;
+  color: #fff; padding: 0.85rem; border-radius: 50px;
+  font-family: 'Baloo 2', cursive; font-size: 0.95rem;
+  font-weight: 700; cursor: pointer; margin-top: 1rem;
+  transition: background 0.2s;
+  box-shadow: 0 4px 14px rgba(244,124,32,0.3);
+}
+.fb-submit:hover { background: #ffa44f; }
+
   </style>
 </head>
+<!-- ══ EXPERIMENTAL BANNER ══ -->
+<div class="exp-banner" id="exp-banner">
+  <div class="exp-left">
+    <span class="exp-badge">🧪 Experimental</span>
+    <span class="exp-text">This store is in early testing — some features may change or have bugs.</span>
+  </div>
+  <button class="fb-btn" onclick="openFeedback()">💬 Share Feedback</button>
+</div>
+
 <body>
 
 <!-- ══ HEADER ══ -->
@@ -1834,7 +1950,67 @@ function submitRzpForm() {
     rzpPayload.sub, rzpPayload.delC, rzpPayload.total);
 }
 
+// ══ FEEDBACK MODAL ══
+let fbStar = 0;
 
+function openFeedback() {
+  document.getElementById('fb-overlay').classList.add('open');
+}
+function closeFeedback() {
+  document.getElementById('fb-overlay').classList.remove('open');
+}
+function handleFbBg(e) {
+  if (e.target === document.getElementById('fb-overlay')) closeFeedback();
+}
+function setStar(n) {
+  fbStar = n;
+  document.querySelectorAll('#fb-stars .star').forEach((s, i) => {
+    s.classList.toggle('active', i < n);
+  });
+}
+function toggleChip(el) { el.classList.toggle('selected'); }
+
+async function submitFeedback() {
+  const msg   = document.getElementById('fb-msg').value.trim();
+  const chips = [...document.querySelectorAll('#fb-chips .chip.selected')]
+                  .map(c => c.textContent.trim());
+  const stars = fbStar || null;
+
+  // ── Save to Supabase ──
+  try {
+    const { error } = await sb.from('feedback').insert([{
+      rating:  stars,
+      tags:    chips.length ? chips : null,
+      message: msg || null
+    }]);
+    if (error) throw error;
+    console.log('✅ Feedback saved to Supabase');
+  } catch(e) {
+    console.warn('❌ Feedback save failed:', e.message);
+    // still continues to WhatsApp below — never blocks the user
+  }
+
+  // ── Send to WhatsApp ──
+  const starsText = fbStar ? '⭐'.repeat(fbStar) + ` (${fbStar}/5)` : 'Not rated';
+  const waText =
+    `🧪 *Feedback — Sree Sathya Store*%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `⭐ Rating: ${starsText}%0A` +
+    (chips.length ? `🏷️ Tags: ${chips.join(', ')}%0A` : '') +
+    (msg          ? `💬 Message: ${msg}%0A`             : '') +
+    `━━━━━━━━━━━━━━━%0A` +
+    `📅 ${new Date().toLocaleString('en-IN')}`;
+
+  window.open(`https://wa.me/${YOUR_WHATSAPP_NO}?text=${waText}`, '_blank');
+  closeFeedback();
+  showToast('🙏 Thanks for your feedback!');
+
+  // ── Reset form ──
+  fbStar = 0;
+  document.querySelectorAll('#fb-stars .star').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('#fb-chips .chip').forEach(c => c.classList.remove('selected'));
+  document.getElementById('fb-msg').value = '';
+}
 
 </script> 
 
@@ -2604,6 +2780,42 @@ function soundSuccess() {
   } catch(e) {}
 }
 </script>
+
+<!-- ══ FEEDBACK MODAL ══ -->
+<div class="fb-overlay" id="fb-overlay" onclick="handleFbBg(event)">
+  <div class="fb-box">
+    <div class="fb-head">
+      <div>
+        <h2>Share your feedback</h2>
+        <p>Help us improve Sree Sathya Store</p>
+      </div>
+      <button class="fb-close" onclick="closeFeedback()">✕</button>
+    </div>
+    <div class="fb-body">
+      <p class="fb-label">How's your experience so far?</p>
+      <div class="fb-stars" id="fb-stars">
+        <span class="star" onclick="setStar(1)">⭐</span>
+        <span class="star" onclick="setStar(2)">⭐</span>
+        <span class="star" onclick="setStar(3)">⭐</span>
+        <span class="star" onclick="setStar(4)">⭐</span>
+        <span class="star" onclick="setStar(5)">⭐</span>
+      </div>
+      <p class="fb-label">What did you notice?</p>
+      <div class="fb-chips" id="fb-chips">
+        <span class="chip" onclick="toggleChip(this)">🐛 Found a bug</span>
+        <span class="chip" onclick="toggleChip(this)">🛒 Cart issue</span>
+        <span class="chip" onclick="toggleChip(this)">💳 Payment problem</span>
+        <span class="chip" onclick="toggleChip(this)">📦 Missing product</span>
+        <span class="chip" onclick="toggleChip(this)">✨ Works great</span>
+        <span class="chip" onclick="toggleChip(this)">💡 Suggestion</span>
+      </div>
+      <p class="fb-label">Tell us more (optional)</p>
+      <textarea class="fb-textarea" id="fb-msg" rows="3"
+        placeholder="e.g. The cart didn't update when I added rice…"></textarea>
+      <button class="fb-submit" onclick="submitFeedback()">📲 Send via WhatsApp</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
