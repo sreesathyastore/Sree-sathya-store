@@ -1245,6 +1245,7 @@ function buildCatStrip() {
 
 // ── APPLY FILTERS + SORT ────────────────────────────
 function applyFilters() {
+   SFX.filter(); 
   filtered = allProducts.filter(p => {
     const matchCat = activeCategory === 'all' || p.category === activeCategory;
     const matchQ   = !searchQuery
@@ -2101,6 +2102,7 @@ document.getElementById('upi-id-display').textContent = YOUR_UPI_ID;
 
 // Open UPI checkout modal
 function openUpiCheckout() {
+    SFX.payment();
   if (cart.length === 0) return;
   closeCart();
 
@@ -2258,6 +2260,7 @@ function copyUpiId() {
   navigator.clipboard.writeText(YOUR_UPI_ID)
     .then(() => {
       // Show copied feedback
+      SFX.copy(); 
       btn.textContent = '✅ Copied!';
       btn.style.background = '#2d7a3a';
       showToast('✅ UPI ID copied! Open your payment app and paste.');
