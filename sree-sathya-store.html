@@ -1240,7 +1240,7 @@ const catEmoji = {
 const fmt = (n) => '₹' + Number(n).toLocaleString('en-IN');
 
 // Delivery charge logic
-const delivery = (sub) => sub >= 500 ? 0 : 0;
+const delivery = (sub) => sub >= 500 ? 0 : 20;
 
 // ── EMOJI fallback per category ─────────────────────
 function categoryEmoji(cat) {
@@ -1597,7 +1597,7 @@ function handleCheckout() {
   if (cart.length === 0) return;
 
   const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const delC  = sub >= 500 ? 0 : 0;
+  const delC  = sub >= 500 ? 0 : 20;
   const total = sub + delC;
 
   // Check if UPI form already filled
