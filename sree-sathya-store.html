@@ -1281,7 +1281,7 @@ function renderProducts() {
   filtered.forEach((p, i) => {
     const outOfStock = p.stock !== undefined && p.stock <= 0;
     const disc = p.original_price ? Math.round((1 - p.price/p.original_price)*100) : 0;
-    const cartItem = cart.find(c => c.id === p.id);
+    const cartItem = cart.find(c => String(c.id) === String(p.id));
 
     const card = document.createElement('div');
     card.className = 'product-card';
@@ -1335,7 +1335,7 @@ function addToCart(productId) {
   const p = allProducts.find(x => x.id === productId);
   if (!p || (p.stock !== undefined && p.stock <= 0)) return;
 
-  const exists = cart.find(c => c.id === productId);
+  const exists = cart.find(c => String(c.id) === String(productId));
   if (exists) {
     exists.qty = Math.min(exists.qty + 1, p.stock || 99);
   } else {
@@ -1390,8 +1390,6 @@ function updateCardAction(productId) {
 function removeFromCart(id) {
   cart = cart.filter(c => c.id !== id);
   saveCart(); updateCartUI();
-  
-  updateProductCard(id);
 }
 
 function clearCart() {
@@ -1457,7 +1455,7 @@ function updateCartUI() {
   document.getElementById('cart-sub').textContent      = fmt(sub);
   document.getElementById('cart-delivery').textContent = delCharge === 0 ? 'FREE 🎉' : fmt(delCharge);
   document.getElementById('cart-total').textContent    = fmt(total);
-  document.getElementById('checkout-total').textContent= fmt(total);
+  
 }
 
 function cartQty(id, delta) {
@@ -2093,7 +2091,7 @@ const YOUR_WHATSAPP_NO  = "917094148820";       // ← 91 + your 10-digit number
 // ════════════════════════════════════════════════════════════
 
 // Show UPI ID in modal
-document.getElementById('upi-id-display').textContent = YOUR_UPI_ID;
+document.getElementById('upi-id-text').textContent = YOUR_UPI_ID;
 
 // Open UPI checkout modal
 function openUpiCheckout() {
@@ -2356,47 +2354,6 @@ function downloadQR() {
     }
   }
 }
-
-// ── Update single product card instantly ──
-function updateProductCard(id) {
-  // Find this product's card in the grid
-  const card = document.querySelector(
-    `.product-card[data-id="${id}"]`
-  );
-  if (!card) return;
-
-  // Check how many in cart
-  const cartItem = cart.find(i => i.id === id);
-  const qty      = cartItem ? cartItem.qty : 0;
-
-  // Find the action area in this card
-  const actionArea = card.querySelector('.card-action');
-  if (!actionArea) return;
-
-  if (qty === 0) {
-    // Show Add button
-    actionArea.innerHTML = `
-      <button class="add-btn" onclick="addToCart(${id}); SFX.addToCart()">
-        + Add
-      </button>`;
-        updateCartUI();
-  updateProductCard(id); 
-  } else {
-    // Show qty controls
-    actionArea.innerHTML = `
-      <div class="qty-control">
-        <button class="qty-btn minus"
-          onclick="decreaseQty(${id}); SFX.decrease()">−</button>
-        <span class="qty-num">${qty}</span>
-        <button class="qty-btn plus"
-          onclick="increaseQty(${id}); SFX.increase()">+</button>
-      </div>`;
-        updateCartUI();
-  updateProductCard(id); 
-      
-  }
-}
-
 
 </script>
 
