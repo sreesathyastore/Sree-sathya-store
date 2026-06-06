@@ -2355,6 +2355,42 @@ function downloadQR() {
   }
 }
 
+// ── Update single product card instantly ──
+function updateProductCard(id) {
+  // Find this product's card in the grid
+  const card = document.querySelector(
+    `.product-card[data-id="${id}"]`
+  );
+  if (!card) return;
+
+  // Check how many in cart
+  const cartItem = cart.find(i => i.id === id);
+  const qty      = cartItem ? cartItem.qty : 0;
+
+  // Find the action area in this card
+  const actionArea = card.querySelector('.card-action');
+  if (!actionArea) return;
+
+  if (qty === 0) {
+    // Show Add button
+    actionArea.innerHTML = `
+      <button class="add-btn" onclick="addToCart(${id}); SFX.addToCart()">
+        + Add
+      </button>`;
+  } else {
+    // Show qty controls
+    actionArea.innerHTML = `
+      <div class="qty-control">
+        <button class="qty-btn minus"
+          onclick="decreaseQty(${id}); SFX.decrease()">−</button>
+        <span class="qty-num">${qty}</span>
+        <button class="qty-btn plus"
+          onclick="increaseQty(${id}); SFX.increase()">+</button>
+      </div>`;
+  }
+}
+
+
 </script>
 
 
