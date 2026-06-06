@@ -1013,14 +1013,15 @@
 }
 .fb-textarea:focus { border-color: #2d7a3a; }
 .fb-submit {
-  width: 100%; background: #f47c20; border: none;
+  width: 100%; background: #2d7a3a; border: none;
   color: #fff; padding: 0.85rem; border-radius: 50px;
   font-family: 'Baloo 2', cursive; font-size: 0.95rem;
   font-weight: 700; cursor: pointer; margin-top: 1rem;
   transition: background 0.2s;
-  box-shadow: 0 4px 14px rgba(244,124,32,0.3);
+  box-shadow: 0 4px 14px rgba(45,122,58,0.3);
 }
-.fb-submit:hover { background: #ffa44f; }
+.fb-submit:hover { background: #3fa052; }
+
 
   </style>
 </head>
@@ -1976,7 +1977,11 @@ async function submitFeedback() {
                   .map(c => c.textContent.trim());
   const stars = fbStar || null;
 
-  // ── Save to Supabase ──
+  if (!stars && !chips.length && !msg) {
+    showToast('⚠️ Please fill in at least one field.');
+    return;
+  }
+
   try {
     const { error } = await sb.from('feedback').insert([{
       rating:  stars,
@@ -1984,28 +1989,15 @@ async function submitFeedback() {
       message: msg || null
     }]);
     if (error) throw error;
-    console.log('✅ Feedback saved to Supabase');
+    showToast('✅ Feedback saved. Thank you!');
+    closeFeedback();
   } catch(e) {
-    console.warn('❌ Feedback save failed:', e.message);
-    // still continues to WhatsApp below — never blocks the user
+    console.warn('❌ Save failed:', e.message);
+    showToast('❌ Could not save. Please try again.');
+    return;
   }
 
-  // ── Send to WhatsApp ──
-  const starsText = fbStar ? '⭐'.repeat(fbStar) + ` (${fbStar}/5)` : 'Not rated';
-  const waText =
-    `🧪 *Feedback — Sree Sathya Store*%0A` +
-    `━━━━━━━━━━━━━━━%0A` +
-    `⭐ Rating: ${starsText}%0A` +
-    (chips.length ? `🏷️ Tags: ${chips.join(', ')}%0A` : '') +
-    (msg          ? `💬 Message: ${msg}%0A`             : '') +
-    `━━━━━━━━━━━━━━━%0A` +
-    `📅 ${new Date().toLocaleString('en-IN')}`;
-
-  window.open(`https://wa.me/${YOUR_WHATSAPP_NO}?text=${waText}`, '_blank');
-  closeFeedback();
-  showToast('🙏 Thanks for your feedback!');
-
-  // ── Reset form ──
+  // ── Reset ──
   fbStar = 0;
   document.querySelectorAll('#fb-stars .star').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('#fb-chips .chip').forEach(c => c.classList.remove('selected'));
@@ -2812,7 +2804,9 @@ function soundSuccess() {
       <p class="fb-label">Tell us more (optional)</p>
       <textarea class="fb-textarea" id="fb-msg" rows="3"
         placeholder="e.g. The cart didn't update when I added rice…"></textarea>
-      <button class="fb-submit" onclick="submitFeedback()">📲 Send via WhatsApp</button>
+      <button class="fb-submit" onclick="submitFeedback()">
+  ✅ Submit Feedback
+</button>
     </div>
   </div>
 </div>
