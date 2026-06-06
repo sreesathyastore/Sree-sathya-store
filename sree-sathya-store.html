@@ -1350,6 +1350,7 @@ function addToCart(productId) {
   updateCartUI();
   updateCardAction(productId);
   showToast(`${categoryEmoji(p.category)} ${p.name} added!`);
+  soundAddToCart();
   bumpCount();
 }
 
@@ -1359,7 +1360,7 @@ function changeQty(productId, delta) {
   item.qty += delta;
   if (item.qty <= 0) {
     cart = cart.filter(c => c.id !== productId);
-    saveCart(); updateCartUI();
+    saveCart();soundRemove(); updateCartUI();
     // Replace qty control with + button
     const p = allProducts.find(x => x.id === productId);
     const actionDiv = document.getElementById(`action-${productId}`);
@@ -1369,7 +1370,7 @@ function changeQty(productId, delta) {
     return;
   }
   item.qty = Math.min(item.qty, item.max);
-  saveCart(); updateCartUI();
+  saveCart();soundRemove(); updateCartUI();
   // Update number shown on card
   const qn = document.getElementById(`qn-${productId}`);
   if (qn) qn.textContent = item.qty;
@@ -1389,11 +1390,11 @@ function updateCardAction(productId) {
 
 function removeFromCart(id) {
   cart = cart.filter(c => c.id !== id);
-  saveCart(); updateCartUI();
+  saveCart();soundRemove(); updateCartUI();
 }
 
 function clearCart() {
-  cart = []; saveCart(); updateCartUI();
+  cart = []; saveCart();soundRemove(); updateCartUI();
   // Re-render to reset all + buttons
   renderProducts();
 }
@@ -1622,6 +1623,7 @@ async function saveRazorpayOrder(name, phone, address, paymentId, sub, delC, tot
 // ── Success Modal ────────────────────────
 function showRazorpaySuccess(orderNo, name, total, paymentId, ownerMsg, customerMsg, phone) {
   // Remove existing if any
+  soundSuccess();
   const existing = document.getElementById('rzp-success-modal');
   if (existing) existing.remove();
 
@@ -2147,6 +2149,7 @@ function generateUpiOrderNo() {
 
 // Confirm order — saves to Supabase + shows WhatsApp
 async function confirmUpiOrder() {
+  soundSuccess();
   const name    = document.getElementById('upi-name').value.trim();
   const phone   = document.getElementById('upi-phone').value.trim();
   const address = document.getElementById('upi-address').value.trim();
@@ -2549,6 +2552,56 @@ const isIphone = /iphone/i.test(navigator.userAgent);
 const isStandalone = window.navigator.standalone;
 if (isIphone && !isStandalone) {
   document.getElementById('ios-install-tip').style.display = 'block';
+}
+
+// ── SOUND ENGINE (Web Audio API — no files needed) ──
+const _ac = () => new (window.AudioContext || window.webkitAudioContext)();
+
+function soundAddToCart() {
+  try {
+    const ac = _ac(), now = ac.currentTime;
+    [[520, 700, 0], [780, 1040, 0.05]].forEach(([f1, f2, delay]) => {
+      const osc = ac.createOscillator(), g = ac.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(f1, now + delay);
+      osc.frequency.exponentialRampToValueAtTime(f2, now + delay + 0.08);
+      g.gain.setValueAtTime(0, now + delay);
+      g.gain.linearRampToValueAtTime(0.18, now + delay + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+      osc.connect(g); g.connect(ac.destination);
+      osc.start(now + delay); osc.stop(now + 0.22);
+    });
+  } catch(e) {}
+}
+
+function soundRemove() {
+  try {
+    const ac = _ac(), now = ac.currentTime;
+    const osc = ac.createOscillator(), g = ac.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(440, now);
+    osc.frequency.exponentialRampToValueAtTime(300, now + 0.15);
+    g.gain.setValueAtTime(0.12, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+    osc.connect(g); g.connect(ac.destination);
+    osc.start(now); osc.stop(now + 0.2);
+  } catch(e) {}
+}
+
+function soundSuccess() {
+  try {
+    const ac = _ac(), now = ac.currentTime;
+    [523, 659, 784, 1047].forEach((freq, i) => {
+      const osc = ac.createOscillator(), g = ac.createGain(), t = now + i * 0.1;
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.14, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+      osc.connect(g); g.connect(ac.destination);
+      osc.start(t); osc.stop(t + 0.25);
+    });
+  } catch(e) {}
 }
 </script>
 
