@@ -391,6 +391,31 @@
       letter-spacing: 0.04em;
     }
 
+    /* Low stock badge */
+    .low-stock-badge {
+      position: absolute; bottom: 10px; left: 10px; z-index: 2;
+      background: #fff3e8; color: #f47c20;
+      font-size: 0.6rem; font-weight: 800;
+      padding: 0.15rem 0.55rem; border-radius: 50px;
+      border: 1px solid #f47c20;
+      letter-spacing: 0.03em; white-space: nowrap;
+    }
+
+    /* Stock info in card */
+    .stock-info-text {
+      font-size: 0.68rem; color: var(--muted);
+      margin-top: 0.15rem; font-weight: 600;
+    }
+    .stock-info-text.low  { color: #f47c20; }
+    .stock-info-text.out  { color: var(--red); }
+    .stock-info-text.good { color: var(--green); }
+
+    /* Cart item stock warning */
+    .cart-stock-warn {
+      font-size: 0.68rem; color: #dc2626;
+      font-weight: 700; margin-top: 2px;
+    }
+
     /* Category tag */
     .cat-tag {
       position: absolute; top: 10px; right: 10px; z-index: 2;
@@ -1425,6 +1450,7 @@ function renderProducts() {
 
     card.innerHTML = `
       ${disc > 0 ? `<div class="discount-badge">${disc}% OFF</div>` : ''}
+      ${!outOfStock && p.stock > 0 && p.stock <= 10 ? `<div class="low-stock-badge">⚠️ Only ${p.stock} left!</div>` : ''}
       <div class="cat-tag ${catClass(p.category)}">${p.category || ''}</div>
       <div class="product-img-wrap">${imgHTML}</div>
       <div class="product-body">
@@ -1434,7 +1460,11 @@ function renderProducts() {
           <div class="price-block">
             <span class="product-price">${fmt(p.price)}</span>
             ${p.original_price ? `<span class="original-price">${fmt(p.original_price)}</span>` : ''}
-            ${outOfStock ? `<p class="out-label">Out of stock</p>` : ''}
+            ${outOfStock
+              ? `<p class="out-label">Out of stock</p>`
+              : `<p class="stock-info-text ${p.stock <= 5 ? 'low' : p.stock <= 10 ? 'low' : 'good'}">
+                  ${p.stock <= 10 ? `⚠️ ${p.stock} in stock` : `${p.stock} in stock`}
+                </p>`}
           </div>
           <div id="action-${p.id}">${actionHTML}</div>
         </div>
@@ -1474,6 +1504,18 @@ function addToCart(productId) {
 function changeQty(productId, delta) {
   const item = cart.find(c => c.id === productId);
   if (!item) return;
+
+  // ── Step 5: Block at stock limit ──
+  if (delta > 0) {
+    const p = allProducts.find(x => x.id === productId);
+    const maxQty = p ? Number(p.stock) : 99;
+    if (item.qty >= maxQty) {
+      showToast(`⚠️ Only ${maxQty} in stock! Can't add more.`);
+      SFX.error();
+      return;
+    }
+  }
+
   item.qty += delta;
   if (item.qty <= 0) {
     cart = cart.filter(c => c.id !== productId);
@@ -1556,6 +1598,15 @@ function updateCartUI() {
         <p class="cart-item-name">${item.name}</p>
         <p class="cart-item-unit">${item.unit || ''}</p>
         <p class="cart-item-price">${fmt(item.price * item.qty)}</p>
+        ${(() => {
+          const p = allProducts.find(x => x.id === item.id);
+          if (!p) return '';
+          const stock = Number(p.stock);
+          if (stock === 0) return `<p class="cart-stock-warn">❌ Now out of stock!</p>`;
+          if (item.qty > stock) return `<p class="cart-stock-warn">⚠️ Only ${stock} available!</p>`;
+          if (stock <= 5) return `<p class="cart-stock-warn">⚠️ Only ${stock} left in stock!</p>`;
+          return '';
+        })()}
         <div class="cart-item-qty">
           <button class="cqty-btn" onclick="cartQty(${item.id}, -1)">−</button>
           <span class="cqty-num">${item.qty}</span>
@@ -1579,6 +1630,17 @@ function updateCartUI() {
 function cartQty(id, delta) {
   const item = cart.find(c => c.id === id);
   if (!item) return;
+
+  // Block at stock limit
+  if (delta > 0) {
+    const p = allProducts.find(x => x.id === id);
+    const maxQty = p ? Number(p.stock) : 99;
+    if (item.qty >= maxQty) {
+      showToast(`⚠️ Only ${maxQty} in stock!`);
+      return;
+    }
+  }
+
   item.qty = Math.max(0, item.qty + delta);
   if (item.qty === 0) removeFromCart(id);
   else { saveCart(); updateCartUI(); }
@@ -1849,9 +1911,15 @@ function openModal(p) {
   if (outOfStock) {
     dot.className = 'stock-dot out';
     stockLbl.innerHTML = `<span class="out-label-2">Out of stock</span>`;
+  } else if (p.stock <= 5) {
+    dot.className = 'stock-dot in';
+    stockLbl.innerHTML = `<span style="color:#f47c20;font-weight:700">⚠️ Only ${p.stock} left — hurry!</span>`;
+  } else if (p.stock <= 10) {
+    dot.className = 'stock-dot in';
+    stockLbl.innerHTML = `<span style="color:#f47c20;font-weight:700">⚠️ Only ${p.stock} in stock</span>`;
   } else {
     dot.className = 'stock-dot in';
-    stockLbl.innerHTML = `<span class="in-label">In stock${p.stock ? ` — ${p.stock} left` : ''}</span>`;
+    stockLbl.innerHTML = `<span class="in-label">✅ In stock — ${p.stock} available</span>`;
   }
 
   const addBtn = document.getElementById('m-add-btn');
@@ -1911,6 +1979,56 @@ document.addEventListener('DOMContentLoaded', function() {
 // ── INIT ─────────────────────────────────────────────
 try { updateCartUI(); } catch(e) { console.warn('Cart UI error:', e); }
 loadProducts();
+
+// ── Step 1: Auto refresh stock every 5 minutes ───────
+setInterval(refreshStockOnly, 5 * 60 * 1000);
+
+// ── Refresh ONLY stock numbers silently ──────────────
+async function refreshStockOnly() {
+  try {
+    const { data, error } = await sb
+      .from('products')
+      .select('id, stock')
+      .eq('is_active', true);
+
+    if (error) throw error;
+
+    let changed = false;
+    (data || []).forEach(remote => {
+      const local = allProducts.find(p => p.id === remote.id);
+      if (local && local.stock !== remote.stock) {
+        local.stock = remote.stock;
+        changed = true;
+      }
+    });
+
+    if (changed) {
+      applyFilters();        // re-render products with new stock
+      updateCartUI();        // update cart warnings
+      checkCartStock();      // warn if cart items now out of stock
+    }
+  } catch(e) {
+    console.warn('Silent stock refresh failed:', e);
+  }
+}
+
+// ── Step 6: Check cart items against current stock ───
+function checkCartStock() {
+  let warned = false;
+  cart.forEach(item => {
+    const p = allProducts.find(x => x.id === item.id);
+    if (p && Number(p.stock) === 0 && !warned) {
+      showToast(`⚠️ "${item.name}" is now out of stock!`);
+      warned = true;
+    } else if (p && item.qty > Number(p.stock) && !warned) {
+      showToast(`⚠️ Only ${p.stock} "${item.name}" available!`);
+      // Reduce qty to available stock
+      item.qty = Number(p.stock);
+      saveCart();
+      warned = true;
+    }
+  });
+}
 
 // ── Razorpay modal helpers ────────────────────────
 let rzpPayload = {};

@@ -1,12 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta name="google-site-verification" content="wLJ2Z8yIvnl2yEKSEZ3cXdzkCj63ZnB1QMH6IGXal_Y" />
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sree Sathya Store — Grocery & Stationery</title>
+   <!-- PWA -->
+<link rel="manifest" href="/Sree-sathya-store/manifest.json"/>
+<meta name="theme-color" content="#2d7a3a"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Sathya Store"/>
+<link rel="apple-touch-icon" href="/Sree-sathya-store/icon-192.png"/>
+  
+  <!-- ══ PRIMARY SEO ══ -->
+  <title>Sree Sathya Store — Grocery & Stationery | Thikkanamcode</title>
+  <meta name="description"
+    content="Sree Sathya Store — Your trusted neighbourhood grocery and stationery shop. Fresh groceries, pulses, spices, dairy, stationery and more. Order online with home delivery."/>
+  <meta name="keywords"
+    content="grocery shop, stationery shop, Sree Sathya Store, grocery near me, online grocery, pulses, rice, dal, pens, notebooks, home delivery grocery"/>
+  <meta name="author" content="Sree Sathya Store"/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://sreesathyastore.github.io/Sree-sathya-store/"/>
+
+  <!-- ══ OPEN GRAPH (WhatsApp / Facebook preview) ══ -->
+  <meta property="og:type"        content="website"/>
+  <meta property="og:title"       content="Sree Sathya Store — Grocery & Stationery"/>
+  <meta property="og:description" content="Fresh groceries, pulses, spices, dairy and stationery. Order online with home delivery."/>
+  <meta property="og:url"         content="https://sreesathyastore.github.io/Sree-sathya-store/"/>
+  <meta property="og:image"       content="https://sreesathyastore.github.io/Sree-sathya-store/store-preview.jpg"/>
+  <meta property="og:site_name"   content="Sree Sathya Store"/>
+
+  <!-- ══ TWITTER CARD ══ -->
+  <meta name="twitter:card"        content="summary_large_image"/>
+  <meta name="twitter:title"       content="Sree Sathya Store — Grocery & Stationery"/>
+  <meta name="twitter:description" content="Fresh groceries and stationery with home delivery."/>
+  <meta name="twitter:image"       content="https://sreesathyastore.github.io/Sree-sathya-store/store-preview.jpg"/>
+
+  <!-- ══ LOCAL BUSINESS SCHEMA (Helps Google Maps & Local Search) ══ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "GroceryStore",
+    "name": "Sree Sathya Store",
+    "description": "Neighbourhood grocery and stationery shop with home delivery",
+    "url": "https://sreesathyastore.github.io/Sree-sathya-store/",
+    "telephone": "+917094148820",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Your Street Address",
+      "addressLocality": "Your City",
+      "addressRegion": "Tamil Nadu",
+      "postalCode": "600000",
+      "addressCountry": "IN"
+    },
+    "openingHours": "Mo-Su 08:00-21:00",
+    "priceRange": "₹",
+    "servesCuisine": "Grocery",
+    "hasMap": "https://maps.google.com/?q=Sree+Sathya+Store",
+    "sameAs": [
+      "https://wa.me/917094148820"
+    ]
+  }
+  </script>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
     /* ══════════════════════════════════════════
@@ -856,15 +915,135 @@
       .logo-wrap { order: 1; }
       .header-actions { order: 2; }
     }
+
+    /* ══ EXPERIMENTAL BANNER ══ */
+.exp-banner {
+  background: #fff8e6;
+  border-bottom: 1.5px solid #f5c800;
+  padding: 0.55rem 2rem;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap;
+}
+.exp-left { display: flex; align-items: center; gap: 0.6rem; }
+.exp-badge {
+  background: #f5c800; color: #5a4000;
+  font-size: 0.65rem; font-weight: 800;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.2rem 0.6rem; border-radius: 50px;
+  white-space: nowrap;
+}
+.exp-text { font-size: 0.8rem; color: #7a5c00; font-weight: 600; }
+.fb-btn {
+  background: #2d7a3a; color: #fff; border: none;
+  padding: 0.4rem 1rem; border-radius: 50px;
+  font-size: 0.78rem; font-weight: 700; cursor: pointer;
+  font-family: 'Nunito', sans-serif; white-space: nowrap;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(45,122,58,0.25);
+}
+.fb-btn:hover { background: #3fa052; }
+
+/* ══ FEEDBACK MODAL ══ */
+.fb-overlay {
+  position: fixed; inset: 0; z-index: 700;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center;
+  justify-content: center; padding: 1.5rem;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.fb-overlay.open { opacity: 1; pointer-events: all; }
+.fb-box {
+  background: #fff; border-radius: 16px;
+  max-width: 400px; width: 100%;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+  overflow: hidden;
+  transform: scale(0.93);
+  transition: transform 0.3s;
+}
+.fb-overlay.open .fb-box { transform: scale(1); }
+.fb-head {
+  background: #2d7a3a; padding: 1.2rem 1.5rem;
+  display: flex; align-items: center;
+  justify-content: space-between;
+}
+.fb-head h2 {
+  font-family: 'Baloo 2', cursive; color: #fff;
+  font-size: 1.1rem; font-weight: 700; margin: 0;
+}
+.fb-head p { color: rgba(255,255,255,0.75); font-size: 0.7rem; margin: 0.15rem 0 0; }
+.fb-close {
+  background: rgba(255,255,255,0.15); border: none;
+  color: #fff; width: 30px; height: 30px;
+  border-radius: 50%; cursor: pointer; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.fb-close:hover { background: rgba(255,255,255,0.25); }
+.fb-body { padding: 1.4rem 1.5rem; }
+.fb-stars { display: flex; gap: 0.4rem; margin-bottom: 1rem; }
+.star {
+  font-size: 1.6rem; cursor: pointer;
+  transition: transform 0.1s;
+  filter: grayscale(1); opacity: 0.35;
+}
+.star.active { filter: none; opacity: 1; }
+.star:hover { transform: scale(1.2); }
+.fb-label {
+  font-size: 0.78rem; font-weight: 700;
+  color: #1e1c18; margin-bottom: 0.4rem;
+}
+.fb-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+.chip {
+  background: #f6f4f0; border: 1.5px solid #e2ddd6;
+  border-radius: 50px; padding: 0.25rem 0.75rem;
+  font-size: 0.72rem; font-weight: 600;
+  cursor: pointer; color: #7c7568;
+  transition: all 0.15s;
+}
+.chip.selected { background: #e8f5eb; border-color: #2d7a3a; color: #2d7a3a; }
+.fb-textarea {
+  width: 100%; padding: 0.65rem 0.9rem;
+  border: 1.5px solid #e2ddd6; border-radius: 10px;
+  font-family: 'Nunito', sans-serif; font-size: 0.85rem;
+  outline: none; resize: none; color: #1e1c18;
+  transition: border-color 0.2s; box-sizing: border-box;
+}
+.fb-textarea:focus { border-color: #2d7a3a; }
+.fb-submit {
+  width: 100%; background: #2d7a3a; border: none;
+  color: #fff; padding: 0.85rem; border-radius: 50px;
+  font-family: 'Baloo 2', cursive; font-size: 0.95rem;
+  font-weight: 700; cursor: pointer; margin-top: 1rem;
+  transition: background 0.2s;
+  box-shadow: 0 4px 14px rgba(45,122,58,0.3);
+}
+.fb-submit:hover { background: #3fa052; }
+
+
   </style>
 </head>
+<!-- ══ EXPERIMENTAL BANNER ══ -->
+<div class="exp-banner" id="exp-banner">
+  <div class="exp-left">
+    <span class="exp-badge">🧪 Experimental</span>
+    <span class="exp-text">This store is in early testing — some features may change or have bugs.</span>
+  </div>
+  <button class="fb-btn" onclick="openFeedback()">💬 Share Feedback</button>
+</div>
+
 <body>
 
 <!-- ══ HEADER ══ -->
 <header>
   <div class="header-top">
-    <a class="logo-wrap" href="#">
-      <div class="logo-icon">🛒</div>
+    <a class="logo-wrap" href="images/icon-512.png">
+      <img src="images/icon-512.png"
+  style="width:38px;height:38px;border-radius:50%;
+         object-fit:cover;border:2px solid rgba(255,255,255,0.4);"
+  alt="Sree Sathya Store"/>
       <div class="logo-text">
         <span class="name" >Sree Sathya Store</span>
         <span class="tagline">Grocery &amp; Stationery</span>
@@ -970,7 +1149,7 @@
 </button>
 
 <button onclick="openUpiCheckout()"
-  style="width:100%; background:#09d6bb; border:none; color:#fff;
+  style="width:100%; background:#9a24ee; border:none; color:#fff;
          padding:0.9rem 1rem; font-family:'Baloo 2',cursive;
          font-size:1rem; font-weight:700; letter-spacing:0.02em;
          cursor:pointer; border-radius:50px; margin-bottom:0.6rem;
@@ -1061,7 +1240,7 @@ const catEmoji = {
 const fmt = (n) => '₹' + Number(n).toLocaleString('en-IN');
 
 // Delivery charge logic
-const delivery = (sub) => sub >= 500 ? 0 : 0;
+const delivery = (sub) => sub >= 500 ? 0 : 20;
 
 // ── EMOJI fallback per category ─────────────────────
 function categoryEmoji(cat) {
@@ -1219,7 +1398,7 @@ function renderProducts() {
   filtered.forEach((p, i) => {
     const outOfStock = p.stock !== undefined && p.stock <= 0;
     const disc = p.original_price ? Math.round((1 - p.price/p.original_price)*100) : 0;
-    const cartItem = cart.find(c => c.id === p.id);
+    const cartItem = cart.find(c => String(c.id) === String(p.id));
 
     const card = document.createElement('div');
     card.className = 'product-card';
@@ -1273,7 +1452,7 @@ function addToCart(productId) {
   const p = allProducts.find(x => x.id === productId);
   if (!p || (p.stock !== undefined && p.stock <= 0)) return;
 
-  const exists = cart.find(c => c.id === productId);
+  const exists = cart.find(c => String(c.id) === String(productId));
   if (exists) {
     exists.qty = Math.min(exists.qty + 1, p.stock || 99);
   } else {
@@ -1288,6 +1467,7 @@ function addToCart(productId) {
   updateCartUI();
   updateCardAction(productId);
   showToast(`${categoryEmoji(p.category)} ${p.name} added!`);
+  soundAddToCart();
   bumpCount();
 }
 
@@ -1297,7 +1477,7 @@ function changeQty(productId, delta) {
   item.qty += delta;
   if (item.qty <= 0) {
     cart = cart.filter(c => c.id !== productId);
-    saveCart(); updateCartUI();
+    saveCart();soundRemove(); updateCartUI();
     // Replace qty control with + button
     const p = allProducts.find(x => x.id === productId);
     const actionDiv = document.getElementById(`action-${productId}`);
@@ -1307,7 +1487,7 @@ function changeQty(productId, delta) {
     return;
   }
   item.qty = Math.min(item.qty, item.max);
-  saveCart(); updateCartUI();
+  saveCart();soundRemove(); updateCartUI();
   // Update number shown on card
   const qn = document.getElementById(`qn-${productId}`);
   if (qn) qn.textContent = item.qty;
@@ -1327,11 +1507,11 @@ function updateCardAction(productId) {
 
 function removeFromCart(id) {
   cart = cart.filter(c => c.id !== id);
-  saveCart(); updateCartUI();
+  saveCart();soundRemove(); updateCartUI();
 }
 
 function clearCart() {
-  cart = []; saveCart(); updateCartUI();
+  cart = []; saveCart();soundRemove(); updateCartUI();
   // Re-render to reset all + buttons
   renderProducts();
 }
@@ -1393,7 +1573,7 @@ function updateCartUI() {
   document.getElementById('cart-sub').textContent      = fmt(sub);
   document.getElementById('cart-delivery').textContent = delCharge === 0 ? 'FREE 🎉' : fmt(delCharge);
   document.getElementById('cart-total').textContent    = fmt(total);
-  document.getElementById('checkout-total').textContent= fmt(total);
+  
 }
 
 function cartQty(id, delta) {
@@ -1417,7 +1597,7 @@ function handleCheckout() {
   if (cart.length === 0) return;
 
   const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const delC  = sub >= 500 ? 0 : 0;
+  const delC  = sub >= 500 ? 0 : 20;
   const total = sub + delC;
 
   // Check if UPI form already filled
@@ -1560,6 +1740,7 @@ async function saveRazorpayOrder(name, phone, address, paymentId, sub, delC, tot
 // ── Success Modal ────────────────────────
 function showRazorpaySuccess(orderNo, name, total, paymentId, ownerMsg, customerMsg, phone) {
   // Remove existing if any
+  soundSuccess();
   const existing = document.getElementById('rzp-success-modal');
   if (existing) existing.remove();
 
@@ -1770,9 +1951,75 @@ function submitRzpForm() {
     rzpPayload.sub, rzpPayload.delC, rzpPayload.total);
 }
 
+// ══ FEEDBACK MODAL ══
+let fbStar = 0;
 
+function openFeedback() {
+  document.getElementById('fb-overlay').classList.add('open');
+}
+function closeFeedback() {
+  document.getElementById('fb-overlay').classList.remove('open');
+}
+function handleFbBg(e) {
+  if (e.target === document.getElementById('fb-overlay')) closeFeedback();
+}
+function setStar(n) {
+  fbStar = n;
+  document.querySelectorAll('#fb-stars .star').forEach((s, i) => {
+    s.classList.toggle('active', i < n);
+  });
+}
+function toggleChip(el) { el.classList.toggle('selected'); }
+
+async function submitFeedback() {
+  const msg   = document.getElementById('fb-msg').value.trim();
+  const chips = [...document.querySelectorAll('#fb-chips .chip.selected')]
+                  .map(c => c.textContent.trim());
+  const stars = fbStar || null;
+
+  if (!stars && !chips.length && !msg) {
+    showToast('⚠️ Please fill in at least one field.');
+    return;
+  }
+
+  try {
+    const { error } = await sb.from('feedback').insert([{
+      rating:  stars,
+      tags:    chips.length ? chips : null,
+      message: msg || null
+    }]);
+    if (error) throw error;
+    showToast('✅ Feedback saved. Thank you!');
+    closeFeedback();
+  } catch(e) {
+    console.warn('❌ Save failed:', e.message);
+    showToast('❌ Could not save. Please try again.');
+    return;
+  }
+
+  // ── Reset ──
+  fbStar = 0;
+  document.querySelectorAll('#fb-stars .star').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('#fb-chips .chip').forEach(c => c.classList.remove('selected'));
+  document.getElementById('fb-msg').value = '';
+}
 
 </script> 
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register('/Sree-sathya-store/sw.js')
+        .then(reg => console.log('✅ SW registered:', reg.scope))
+        .catch(err => console.log('❌ SW failed:', err));
+    });
+  }
+</script>
+
+
+
 <div id="upi-overlay"
   style="position:fixed; inset:0; z-index:500;
          background:rgba(0,0,0,0.55); backdrop-filter:blur(4px);
@@ -1850,32 +2097,94 @@ function submitRzpForm() {
       </div>
 
       <!-- Step 3: Pay -->
-      <p style="font-family:'Baloo 2',cursive; font-weight:700;
-                font-size:0.95rem; margin:0 0 0.7rem; color:#1e1c18;">
-        3. Open Your UPI App &amp; Pay
-      </p>
+      <!-- ── UPI PAYMENT OPTIONS ── -->
+<p style="font-family:'Baloo 2',cursive;font-weight:700;
+          font-size:0.95rem;margin:0 0 0.8rem;color:#1e1c18;">
+  3. Pay using any UPI App
+</p>
 
-      <div style="background:#f3eeff; border:1.5px solid #5f259f;
-                  border-radius:12px; padding:1rem; text-align:center; margin-bottom:1rem;">
-        <p style="font-size:0.82rem; color:#7c7568; margin:0 0 0.4rem;">
-          Send payment to UPI ID:
-        </p>
-        <p style="font-family:'Baloo 2',cursive; font-size:1.1rem;
-                  font-weight:800; color:#5f259f; margin:0 0 0.8rem;"
-           id="upi-id-display"></p>
+<!-- Amount reminder -->
+<div style="background:#f3eeff;border-radius:10px;padding:0.7rem 1rem;
+            display:flex;justify-content:space-between;align-items:center;
+            margin-bottom:1rem;">
+  <span style="font-size:0.82rem;color:#5f259f;font-weight:600;">Pay this amount</span>
+  <span id="upi-pay-amount"
+    style="font-family:'Baloo 2',cursive;font-size:1.4rem;
+           font-weight:800;color:#5f259f;">₹0</span>
+</div>
 
-        <button onclick="triggerUpiApp()"
-          style="width:100%; background:#5f259f; color:#fff; border:none;
-                 padding:0.8rem; border-radius:50px;
-                 font-family:'Baloo 2',cursive; font-weight:700;
-                 font-size:0.95rem; cursor:pointer;
-                 box-shadow:0 4px 12px rgba(95,37,159,0.3);">
-          📱 Open PhonePe / GPay / BHIM
-        </button>
-        <p style="font-size:0.7rem; color:#7c7568; margin:0.5rem 0 0;">
-          Opens your UPI app with amount pre-filled
-        </p>
-      </div>
+<!-- QR CODE -->
+<!-- QR CODE — Auto Generated -->
+<div style="text-align:center;margin-bottom:1rem;">
+  <p style="font-size:0.75rem;color:#6b7280;margin-bottom:0.6rem;font-weight:600;">
+    📷 Scan with PhonePe / GPay / BHIM / Paytm
+  </p>
+  <div style="display:inline-block;background:#fff;
+              border:2px solid #5f259f;border-radius:12px;padding:10px;">
+    <div id="upi-qr-code"></div>
+  </div>
+  <p style="font-size:0.7rem;color:#6b7280;margin-top:0.5rem;">
+    Scan QR → amount auto-fills in your app
+  </p>
+
+  <!-- Download button -->
+  <button onclick="downloadQR()"
+    title="Download QR Code"
+    style="margin-top:0.6rem;background:#f3eeff;border:1.5px solid #5f259f;
+           color:#5f259f;width:36px;height:36px;border-radius:50%;
+           font-size:1.1rem;cursor:pointer;display:inline-flex;
+           align-items:center;justify-content:center;
+           transition:background 0.2s;">
+    ⬇️
+  </button>
+</div>
+
+<!-- Divider -->
+<div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:1rem;">
+  <div style="flex:1;height:1px;background:#e2ddd6;"></div>
+  <span style="font-size:0.72rem;color:#6b7280;font-weight:600;">OR</span>
+  <div style="flex:1;height:1px;background:#e2ddd6;"></div>
+</div>
+
+<!-- UPI ID + Copy button -->
+<div style="background:#f8f9fa;border:1.5px solid #e2ddd6;border-radius:10px;
+            padding:0.8rem 1rem;margin-bottom:1rem;">
+  <p style="font-size:0.7rem;color:#6b7280;font-weight:700;
+            text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem;">
+    UPI ID
+  </p>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:0.6rem;">
+    <span id="upi-id-text"
+      style="font-family:'Baloo 2',cursive;font-size:1rem;
+             font-weight:700;color:#1e1c18;word-break:break-all;">
+      <!-- filled by JS -->
+    </span>
+    <button onclick="copyUpiId()"
+      id="copy-upi-btn"
+      style="background:#5f259f;color:#fff;border:none;
+             padding:0.45rem 1rem;border-radius:50px;
+             font-family:'Nunito',sans-serif;font-size:0.78rem;
+             font-weight:700;cursor:pointer;white-space:nowrap;
+             transition:background 0.2s;flex-shrink:0;">
+      📋 Copy
+    </button>
+  </div>
+</div>
+
+<!-- Steps guide -->
+<div style="background:#e8f5eb;border-radius:10px;padding:0.8rem 1rem;margin-bottom:1rem;">
+  <p style="font-size:0.75rem;font-weight:700;color:#2d7a3a;margin-bottom:0.5rem;">
+    How to pay:
+  </p>
+  <div style="font-size:0.75rem;color:#166534;line-height:2;">
+    1️⃣ Open PhonePe / GPay / Paytm<br>
+    2️⃣ Tap <strong>Send Money / Pay</strong><br>
+    3️⃣ Paste UPI ID or Scan QR above<br>
+    4️⃣ Enter amount: <strong id="upi-steps-amount">₹0</strong><br>
+    5️⃣ Pay → Copy the <strong>UTR number</strong><br>
+    6️⃣ Paste UTR below and confirm order
+  </div>
+</div>
 
       <!-- Step 4: UTR -->
       <p style="font-family:'Baloo 2',cursive; font-weight:700;
@@ -1947,12 +2256,12 @@ function submitRzpForm() {
 // ════════════════════════════════════════════════════════════
 //  ⚙️  YOUR DETAILS — change only these 2 lines
 // ════════════════════════════════════════════════════════════
-const YOUR_UPI_ID       = "ramprasathr17-1@okaxis";      // ← Your PhonePe UPI ID
+const YOUR_UPI_ID       = "7094148820@upi";      // ← Your PhonePe UPI ID
 const YOUR_WHATSAPP_NO  = "917094148820";       // ← 91 + your 10-digit number
 // ════════════════════════════════════════════════════════════
 
 // Show UPI ID in modal
-document.getElementById('upi-id-display').textContent = YOUR_UPI_ID;
+document.getElementById('upi-id-text').textContent = YOUR_UPI_ID;
 
 // Open UPI checkout modal
 function openUpiCheckout() {
@@ -1965,6 +2274,13 @@ function openUpiCheckout() {
   document.getElementById('upi-amount-display').textContent = fmt(total);
   document.getElementById('upi-btn-total').textContent = fmt(total);
   document.getElementById('upi-overlay').style.display = 'flex';
+// Update UPI ID and amounts
+  document.getElementById('upi-id-text').textContent      = YOUR_UPI_ID;
+  document.getElementById('upi-pay-amount').textContent   = fmt(total);
+  document.getElementById('upi-steps-amount').textContent = fmt(total);
+
+  // Auto generate QR code
+  generateUpiQR(total);
 }
 
 function closeUpiCheckout() {
@@ -2001,6 +2317,7 @@ function generateUpiOrderNo() {
 
 // Confirm order — saves to Supabase + shows WhatsApp
 async function confirmUpiOrder() {
+  soundSuccess();
   const name    = document.getElementById('upi-name').value.trim();
   const phone   = document.getElementById('upi-phone').value.trim();
   const address = document.getElementById('upi-address').value.trim();
@@ -2098,8 +2415,122 @@ updateCartUI = function() {
   if (el) el.textContent = fmt(total);
 };
 
+// ── Copy UPI ID ──────────────────────────
+function copyUpiId() {
+  const btn = document.getElementById('copy-upi-btn');
+
+  navigator.clipboard.writeText(YOUR_UPI_ID)
+    .then(() => {
+      // Show copied feedback
+      btn.textContent = '✅ Copied!';
+      btn.style.background = '#2d7a3a';
+      showToast('✅ UPI ID copied! Open your payment app and paste.');
+      setTimeout(() => {
+        btn.textContent = '📋 Copy';
+        btn.style.background = '#5f259f';
+      }, 2500);
+    })
+    .catch(() => {
+      // Fallback for older browsers
+      const el = document.createElement('textarea');
+      el.value = YOUR_UPI_ID;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      btn.textContent = '✅ Copied!';
+      btn.style.background = '#2d7a3a';
+      setTimeout(() => {
+        btn.textContent = '📋 Copy';
+        btn.style.background = '#5f259f';
+      }, 2500);
+    });
+}
+
+// ── QR fallback if image not found ───────
+function generateQRFallback() {
+  return `<div style="width:180px;height:180px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;background:#f3eeff;border-radius:8px;
+    font-size:0.75rem;color:#5f259f;text-align:center;padding:1rem;">
+    <div style="font-size:2rem;margin-bottom:0.5rem;">📱</div>
+    <strong>Scan not available</strong><br>
+    Use Copy UPI ID button above
+  </div>`;
+}
+
+// ── Auto Generate UPI QR Code ────────────
+function generateUpiQR(total) {
+  const qrContainer = document.getElementById('upi-qr-code');
+
+  // Clear previous QR
+  qrContainer.innerHTML = '';
+
+  // Build UPI payment string
+  // This is the standard UPI deep link format
+  // all QR scanner apps understand
+  const upiString =
+    `upi://pay?pa=${encodeURIComponent(YOUR_UPI_ID)}` +
+    `&pn=${encodeURIComponent('Sree Sathya Store')}` +
+    `&am=${total.toFixed(2)}` +
+    `&cu=INR` +
+    `&tn=${encodeURIComponent('Payment to Sree Sathya Store')}`;
+
+  // Generate QR
+  try {
+    new QRCode(qrContainer, {
+      text:          upiString,
+      width:         180,
+      height:        180,
+      colorDark:     '#000000',   // purple dots
+      colorLight:    '#ffffff',   // white background
+      correctLevel:  QRCode.CorrectLevel.H  // high error correction
+    });
+  } catch(e) {
+    qrContainer.innerHTML = `
+      <div style="width:180px;height:180px;display:flex;flex-direction:column;
+        align-items:center;justify-content:center;background:#f3eeff;
+        border-radius:8px;font-size:0.75rem;color:#5f259f;text-align:center;padding:1rem;">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">📱</div>
+        <strong>Use Copy UPI ID</strong><br>button below
+      </div>`;
+  }
+}
+
+// ── Download QR Code ─────────────────────
+function downloadQR() {
+  const qrContainer = document.getElementById('upi-qr-code');
+  if (!qrContainer) return;
+
+  // QRCode.js generates a canvas element inside the div
+  const canvas = qrContainer.querySelector('canvas');
+
+  if (canvas) {
+    // Create download link
+    const link    = document.createElement('a');
+    link.download = 'SreeSathyaStore-UPI-QR.png';
+    link.href     = canvas.toDataURL('image/png');
+    link.click();
+    showToast('✅ QR Code downloaded!');
+  } else {
+    // QR shown as image tag (some browsers)
+    const img = qrContainer.querySelector('img');
+    if (img) {
+      const link    = document.createElement('a');
+      link.download = 'SreeSathyaStore-UPI-QR.png';
+      link.href     = img.src;
+      link.click();
+      showToast('✅ QR Code downloaded!');
+    } else {
+      showToast('QR not ready yet. Please wait.');
+    }
+  }
+}
 
 </script>
+
+
+
+
 <a href="track-order.html"
   style="position:fixed; bottom:5rem; right:1.2rem; z-index:150;
          background:#2d7a3a; color:#fff; text-decoration:none;
@@ -2207,5 +2638,178 @@ updateCartUI = function() {
     </div>
   </div>
 </div>
+
+<!-- ══ INSTALL APP BUTTON ══ -->
+<div id="install-banner"
+  style="display:none; position:fixed; bottom:1.2rem; right:1.2rem;
+         z-index:149; animation:fadeUp 0.4s ease;">
+  <button id="install-btn" onclick="installApp()"
+    style="background:#2d7a3a; color:#fff; border:none;
+           padding:0.65rem 1.2rem; border-radius:50px;
+           font-family:'Baloo 2',cursive; font-size:0.85rem;
+           font-weight:700; cursor:pointer;
+           box-shadow:0 4px 16px rgba(45,122,58,0.4);
+           display:flex; align-items:center; gap:0.5rem;
+           transition:background 0.2s, transform 0.2s;">
+    📲 Install App
+  </button>
+</div>
+
+<script>
+// ── PWA Install Button ────────────────────
+let deferredPrompt = null;
+
+// Capture install event
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+
+  // Show install button
+  document.getElementById('install-banner').style.display = 'block';
+});
+
+// Install button clicked
+function installApp() {
+  if (!deferredPrompt) {
+    // Already installed or not supported
+    showToast('App already installed or use browser menu to install!');
+    return;
+  }
+
+  // Show browser install prompt
+  deferredPrompt.prompt();
+
+  // Wait for user response
+  deferredPrompt.userChoice.then((result) => {
+    if (result.outcome === 'accepted') {
+      showToast('🎉 App installed successfully!');
+      document.getElementById('install-banner').style.display = 'none';
+    } else {
+      showToast('You can install anytime using this button!');
+    }
+    deferredPrompt = null;
+  });
+}
+
+// Hide button if already installed
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').style.display = 'none';
+  deferredPrompt = null;
+  showToast('🎉 Sathya Store app installed!');
+});
+</script>
+
+<!-- Shows only on iPhone -->
+<div id="ios-install-tip"
+  style="display:none; position:fixed; bottom:1.2rem; right:1.2rem;
+         z-index:149; background:#fff; border:1.5px solid #2d7a3a;
+         border-radius:12px; padding:0.8rem 1rem; max-width:220px;
+         box-shadow:0 4px 16px rgba(0,0,0,0.12); font-size:0.78rem;
+         color:#1a1a1a; line-height:1.6;">
+  <button onclick="this.parentElement.style.display='none'"
+    style="float:right; background:none; border:none;
+           cursor:pointer; color:#6b7280; font-size:1rem;">✕</button>
+  <strong style="color:#2d7a3a;">📲 Install Our App</strong><br>
+  Tap <strong>Share</strong> button below<br>
+  then tap <strong>"Add to Home Screen"</strong>
+</div>
+
+<script>
+// Show tip only on iPhone
+const isIphone = /iphone/i.test(navigator.userAgent);
+const isStandalone = window.navigator.standalone;
+if (isIphone && !isStandalone) {
+  document.getElementById('ios-install-tip').style.display = 'block';
+}
+
+// ── SOUND ENGINE (Web Audio API — no files needed) ──
+const _ac = () => new (window.AudioContext || window.webkitAudioContext)();
+
+function soundAddToCart() {
+  try {
+    const ac = _ac(), now = ac.currentTime;
+    [[520, 700, 0], [780, 1040, 0.05]].forEach(([f1, f2, delay]) => {
+      const osc = ac.createOscillator(), g = ac.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(f1, now + delay);
+      osc.frequency.exponentialRampToValueAtTime(f2, now + delay + 0.08);
+      g.gain.setValueAtTime(0, now + delay);
+      g.gain.linearRampToValueAtTime(0.18, now + delay + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+      osc.connect(g); g.connect(ac.destination);
+      osc.start(now + delay); osc.stop(now + 0.22);
+    });
+  } catch(e) {}
+}
+
+function soundRemove() {
+  try {
+    const ac = _ac(), now = ac.currentTime;
+    const osc = ac.createOscillator(), g = ac.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(440, now);
+    osc.frequency.exponentialRampToValueAtTime(300, now + 0.15);
+    g.gain.setValueAtTime(0.12, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+    osc.connect(g); g.connect(ac.destination);
+    osc.start(now); osc.stop(now + 0.2);
+  } catch(e) {}
+}
+
+function soundSuccess() {
+  try {
+    const ac = _ac(), now = ac.currentTime;
+    [523, 659, 784, 1047].forEach((freq, i) => {
+      const osc = ac.createOscillator(), g = ac.createGain(), t = now + i * 0.1;
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.14, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+      osc.connect(g); g.connect(ac.destination);
+      osc.start(t); osc.stop(t + 0.25);
+    });
+  } catch(e) {}
+}
+</script>
+
+<!-- ══ FEEDBACK MODAL ══ -->
+<div class="fb-overlay" id="fb-overlay" onclick="handleFbBg(event)">
+  <div class="fb-box">
+    <div class="fb-head">
+      <div>
+        <h2>Share your feedback</h2>
+        <p>Help us improve Sree Sathya Store</p>
+      </div>
+      <button class="fb-close" onclick="closeFeedback()">✕</button>
+    </div>
+    <div class="fb-body">
+      <p class="fb-label">How's your experience so far?</p>
+      <div class="fb-stars" id="fb-stars">
+        <span class="star" onclick="setStar(1)">⭐</span>
+        <span class="star" onclick="setStar(2)">⭐</span>
+        <span class="star" onclick="setStar(3)">⭐</span>
+        <span class="star" onclick="setStar(4)">⭐</span>
+        <span class="star" onclick="setStar(5)">⭐</span>
+      </div>
+      <p class="fb-label">What did you notice?</p>
+      <div class="fb-chips" id="fb-chips">
+        <span class="chip" onclick="toggleChip(this)">🐛 Found a bug</span>
+        <span class="chip" onclick="toggleChip(this)">🛒 Cart issue</span>
+        <span class="chip" onclick="toggleChip(this)">💳 Payment problem</span>
+        <span class="chip" onclick="toggleChip(this)">📦 Missing product</span>
+        <span class="chip" onclick="toggleChip(this)">✨ Works great</span>
+        <span class="chip" onclick="toggleChip(this)">💡 Suggestion</span>
+      </div>
+      <p class="fb-label">Tell us more (optional)</p>
+      <textarea class="fb-textarea" id="fb-msg" rows="3"
+        placeholder="e.g. The cart didn't update when I added rice…"></textarea>
+      <button class="fb-submit" onclick="submitFeedback()">
+  ✅ Submit Feedback
+</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
