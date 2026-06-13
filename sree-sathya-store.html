@@ -1980,8 +1980,8 @@ document.addEventListener('DOMContentLoaded', function() {
 try { updateCartUI(); } catch(e) { console.warn('Cart UI error:', e); }
 loadProducts();
 
-// ── Step 1: Auto refresh stock every 5 minutes ───────
-setInterval(refreshStockOnly, 5 * 60 * 1000);
+// ── Auto refresh stock every 1 minute ───────
+setInterval(refreshStockOnly, 1 * 60 * 1000);
 
 // ── Refresh ONLY stock numbers silently ──────────────
 async function refreshStockOnly() {
@@ -2048,7 +2048,7 @@ function closeRzpModal() {
   document.getElementById('rzp-modal-overlay').style.display = 'none';
 }
 
-function submitRzpForm() {
+async function submitRzpForm() {
   const name    = document.getElementById('rzp-name').value.trim();
   const phone   = document.getElementById('rzp-phone').value.trim();
   const address = document.getElementById('rzp-address').value.trim();
@@ -2064,6 +2064,15 @@ function submitRzpForm() {
   }
 
   errEl.style.display = 'none';
+
+  // ── Live stock check from Supabase ──
+  showToast('🔍 Checking stock availability…');
+  const { warnings, ok } = await checkLiveStockBeforeOrder();
+  if (!ok) {
+    const proceed = await showOrderStockWarning(warnings);
+    if (!proceed) return;
+  }
+
   closeRzpModal();
   launchRazorpay(name, phone, address,
     rzpPayload.sub, rzpPayload.delC, rzpPayload.total);
@@ -2433,9 +2442,93 @@ function generateUpiOrderNo() {
     + '-' + Math.floor(1000 + Math.random() * 9000);
 }
 
+// ── Live stock check from Supabase ───────────────────
+async function checkLiveStockBeforeOrder() {
+  const ids = cart.map(i => i.id);
+  try {
+    const { data: liveProds, error } = await sb
+      .from('products')
+      .select('id, name, stock')
+      .in('id', ids);
+    if (error) throw error;
+
+    const warnings = [];
+    for (const item of cart) {
+      const live = (liveProds || []).find(p => p.id === item.id);
+      if (!live) continue;
+      const avail = Number(live.stock);
+      // Update local allProducts with latest stock
+      const local = allProducts.find(p => p.id === item.id);
+      if (local) local.stock = avail;
+
+      if (avail === 0) {
+        warnings.push({ name: item.name, need: item.qty, have: 0, type: 'out' });
+      } else if (avail < item.qty) {
+        warnings.push({ name: item.name, need: item.qty, have: avail, type: 'low' });
+      }
+    }
+    return { warnings, ok: warnings.length === 0 };
+  } catch(e) {
+    console.warn('Stock check failed:', e.message);
+    return { warnings: [], ok: true, offline: true }; // allow if Supabase unreachable
+  }
+}
+
+// ── Show stock warning before order ──────────────────
+function showOrderStockWarning(warnings) {
+  return new Promise(resolve => {
+    const old = document.getElementById('order-stock-warn');
+    if (old) old.remove();
+
+    const rows = warnings.map(w =>
+      w.type === 'out'
+        ? `<div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:8px;padding:0.6rem 0.9rem;font-size:0.82rem;margin-bottom:0.5rem;">
+            ❌ <b>${w.name}</b> — Out of stock (you need ${w.need})
+           </div>`
+        : `<div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:8px;padding:0.6rem 0.9rem;font-size:0.82rem;margin-bottom:0.5rem;">
+            ⚠️ <b>${w.name}</b> — Only <b>${w.have}</b> available, you have <b>${w.need}</b> in cart
+           </div>`
+    ).join('');
+
+    const el = document.createElement('div');
+    el.id = 'order-stock-warn';
+    el.style.cssText = 'position:fixed;inset:0;z-index:700;background:rgba(0,0,0,0.6);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+    el.innerHTML = `
+      <div style="background:#fff;border-radius:16px;max-width:420px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.25);overflow:hidden;animation:fadeUp 0.2s ease;">
+        <div style="background:#dc2626;padding:1rem 1.4rem;display:flex;align-items:center;gap:0.7rem;">
+          <span style="font-size:1.5rem;">⚠️</span>
+          <div>
+            <div style="font-family:'Baloo 2',cursive;color:#fff;font-size:1.05rem;font-weight:700;">Stock Issue</div>
+            <div style="color:rgba(255,255,255,0.8);font-size:0.75rem;">Some items in your cart are unavailable</div>
+          </div>
+        </div>
+        <div style="padding:1.2rem 1.4rem;">
+          ${rows}
+          <p style="font-size:0.78rem;color:#6b7280;margin:0.8rem 0 1rem;">Please update your cart and try again, or proceed anyway.</p>
+          <div style="display:flex;gap:0.7rem;">
+            <button id="osw-edit" style="flex:1;background:#f6f4f0;border:1.5px solid #e2ddd6;color:#1e1c18;padding:0.7rem;border-radius:50px;font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;">
+              ✏️ Edit Cart
+            </button>
+            <button id="osw-proceed" style="flex:1;background:#dc2626;color:#fff;border:none;padding:0.7rem;border-radius:50px;font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;">
+              Proceed Anyway
+            </button>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(el);
+    document.getElementById('osw-proceed').onclick = () => { el.remove(); resolve(true); };
+    document.getElementById('osw-edit').onclick    = () => {
+      el.remove();
+      // Re-render cart with updated stock info, open cart sidebar
+      updateCartUI();
+      openCart();
+      resolve(false);
+    };
+  });
+}
+
 // Confirm order — saves to Supabase + shows WhatsApp
 async function confirmUpiOrder() {
-  soundSuccess();
   const name    = document.getElementById('upi-name').value.trim();
   const phone   = document.getElementById('upi-phone').value.trim();
   const address = document.getElementById('upi-address').value.trim();
@@ -2443,6 +2536,16 @@ async function confirmUpiOrder() {
 
   if (!name)  { alert('Please enter your name.'); return; }
   if (!phone || phone.length < 10) { alert('Please enter a valid 10-digit phone number.'); return; }
+
+  // ── Live stock check from Supabase ──
+  showToast('🔍 Checking stock availability…');
+  const { warnings, ok } = await checkLiveStockBeforeOrder();
+  if (!ok) {
+    const proceed = await showOrderStockWarning(warnings);
+    if (!proceed) return;
+  }
+
+  soundSuccess();
 
   const sub    = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const delC   = delivery(sub);
