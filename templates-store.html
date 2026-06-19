@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ShopTools — Free Business Templates for Indian Shops</title>
+<meta name="description" content="Free Excel billing templates, GST invoice formats, stock management sheets and more for Indian small businesses."/>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  --ink:#1a1a2e;
+  --green:#16a34a;
+  --glight:#22c55e;
+  --gpale:#f0fdf4;
+  --gold:#f59e0b;
+  --goldpale:#fffbeb;
+  --bg:#f8fafc;
+  --white:#fff;
+  --border:#e2e8f0;
+  --muted:#64748b;
+  --sh:0 1px 4px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.04);
+  --shm:0 8px 32px rgba(0,0,0,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Nunito',sans-serif;font-size:15px}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* ── NAVBAR ── */
+nav{
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  padding:0 2rem;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 1px 12px rgba(0,0,0,.06);
+}
+.nav-logo{
+  display:flex;align-items:center;gap:.6rem;
+  text-decoration:none;
+}
+.nav-logo .icon{
+  width:36px;height:36px;background:var(--green);
+  border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:1.1rem;
+  box-shadow:0 2px 8px rgba(22,163,74,.3);
+}
+.nav-logo .brand{
+  font-family:'Baloo 2',cursive;font-size:1.15rem;
+  font-weight:800;color:var(--ink);
+}
+.nav-logo .brand span{color:var(--green)}
+.nav-links{display:flex;align-items:center;gap:1.5rem}
+.nav-links a{
+  color:var(--muted);text-decoration:none;
+  font-size:.88rem;font-weight:600;
+  transition:color .2s;
+}
+.nav-links a:hover{color:var(--green)}
+.nav-cta{
+  background:var(--green);color:#fff;
+  padding:.45rem 1.1rem;border-radius:50px;
+  font-size:.85rem;font-weight:700;text-decoration:none;
+  transition:background .2s;
+}
+.nav-cta:hover{background:var(--glight);color:#fff}
+
+/* ── HERO ── */
+.hero{
+  background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#164e36 100%);
+  padding:5rem 2rem 4rem;
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:rgba(22,163,74,.2);color:#86efac;
+  border:1px solid rgba(22,163,74,.3);
+  padding:.35rem 1rem;border-radius:50px;
+  font-size:.78rem;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;
+  margin-bottom:1.5rem;animation:fadeUp .5s ease both;
+}
+.hero h1{
+  font-family:'Baloo 2',cursive;
+  font-size:clamp(2rem,5vw,3.2rem);
+  font-weight:800;color:#fff;
+  line-height:1.15;
+  margin-bottom:1.2rem;
+  animation:fadeUp .5s .1s ease both;
+}
+.hero h1 .highlight{
+  background:linear-gradient(90deg,#86efac,#34d399);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero p{
+  color:rgba(255,255,255,.7);font-size:1.05rem;
+  max-width:520px;margin:0 auto 2.5rem;
+  line-height:1.7;
+  animation:fadeUp .5s .2s ease both;
+}
+.hero-btns{
+  display:flex;gap:.8rem;justify-content:center;
+  flex-wrap:wrap;
+  animation:fadeUp .5s .3s ease both;
+}
+.btn-primary{
+  background:var(--green);color:#fff;
+  padding:.75rem 1.8rem;border-radius:50px;
+  font-family:'Baloo 2',cursive;font-size:.95rem;font-weight:700;
+  text-decoration:none;transition:all .2s;
+  box-shadow:0 4px 16px rgba(22,163,74,.4);
+  display:inline-flex;align-items:center;gap:.5rem;
+}
+.btn-primary:hover{background:var(--glight);transform:translateY(-2px)}
+.btn-secondary{
+  background:rgba(255,255,255,.1);color:#fff;
+  border:1.5px solid rgba(255,255,255,.2);
+  padding:.75rem 1.8rem;border-radius:50px;
+  font-family:'Baloo 2',cursive;font-size:.95rem;font-weight:700;
+  text-decoration:none;transition:all .2s;
+  display:inline-flex;align-items:center;gap:.5rem;
+}
+.btn-secondary:hover{background:rgba(255,255,255,.18)}
+
+/* Floating excel icons in hero */
+.hero-icons{
+  display:flex;justify-content:center;gap:1.5rem;
+  margin-top:3rem;flex-wrap:wrap;
+  animation:fadeUp .5s .4s ease both;
+}
+.hero-icon-card{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;padding:.8rem 1.2rem;
+  display:flex;align-items:center;gap:.6rem;
+  animation:float 3s ease-in-out infinite;
+}
+.hero-icon-card:nth-child(2){animation-delay:.4s}
+.hero-icon-card:nth-child(3){animation-delay:.8s}
+.hero-icon-card .ico{font-size:1.4rem}
+.hero-icon-card span{
+  font-size:.78rem;font-weight:700;
+  color:rgba(255,255,255,.8);
+}
+
+/* ── STATS ── */
+.stats-section{
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  padding:1.5rem 2rem;
+}
+.stats-inner{
+  max-width:900px;margin:0 auto;
+  display:flex;justify-content:space-around;
+  align-items:center;flex-wrap:wrap;gap:1rem;
+}
+.stat-item{text-align:center}
+.stat-item .num{
+  font-family:'Baloo 2',cursive;
+  font-size:1.8rem;font-weight:800;
+  color:var(--green);display:block;
+}
+.stat-item .lbl{
+  font-size:.78rem;color:var(--muted);
+  font-weight:600;
+}
+
+/* ── MAIN CONTENT ── */
+.main{max-width:1100px;margin:0 auto;padding:3.5rem 2rem}
+
+/* ── SECTION HEADER ── */
+.sec-header{text-align:center;margin-bottom:2.5rem}
+.sec-eyebrow{
+  display:inline-block;
+  color:var(--green);font-size:.75rem;font-weight:800;
+  letter-spacing:.12em;text-transform:uppercase;
+  margin-bottom:.5rem;
+}
+.sec-header h2{
+  font-family:'Baloo 2',cursive;
+  font-size:clamp(1.5rem,3vw,2rem);
+  font-weight:800;color:var(--ink);
+  margin-bottom:.5rem;
+}
+.sec-header p{
+  color:var(--muted);font-size:.92rem;
+  max-width:480px;margin:0 auto;
+  line-height:1.7;
+}
+
+/* ── FILTER PILLS ── */
+.filter-bar{
+  display:flex;gap:.6rem;flex-wrap:wrap;
+  justify-content:center;margin-bottom:2rem;
+}
+.filter-pill{
+  background:var(--white);border:1.5px solid var(--border);
+  color:var(--muted);padding:.38rem .95rem;border-radius:50px;
+  font-size:.8rem;font-weight:700;cursor:pointer;
+  transition:all .15s;
+}
+.filter-pill:hover{border-color:var(--green);color:var(--green)}
+.filter-pill.active{background:var(--green);border-color:var(--green);color:#fff}
+
+/* ── PRODUCT GRID ── */
+.products-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:1.5rem;
+}
+
+/* ── PRODUCT CARD ── */
+.prod-card{
+  background:var(--white);border-radius:16px;
+  box-shadow:var(--sh);overflow:hidden;
+  border:1.5px solid var(--border);
+  transition:transform .2s,box-shadow .2s,border-color .2s;
+  animation:fadeUp .5s ease both;
+  display:flex;flex-direction:column;
+}
+.prod-card:hover{
+  transform:translateY(-4px);
+  box-shadow:var(--shm);
+  border-color:rgba(22,163,74,.3);
+}
+.prod-card-top{
+  background:linear-gradient(135deg,#f0fdf4,#dcfce7);
+  padding:1.8rem 1.5rem 1.2rem;
+  display:flex;align-items:flex-start;
+  justify-content:space-between;
+  position:relative;
+}
+.prod-icon{
+  font-size:2.8rem;
+  animation:float 4s ease-in-out infinite;
+}
+.prod-icon-2{animation-delay:.5s}
+.prod-icon-3{animation-delay:1s}
+.prod-icon-4{animation-delay:1.5s}
+.prod-icon-5{animation-delay:2s}
+.free-badge{
+  background:var(--green);color:#fff;
+  font-size:.65rem;font-weight:800;
+  padding:3px 10px;border-radius:50px;
+  letter-spacing:.06em;
+}
+.prod-format{
+  position:absolute;bottom:.7rem;left:1.5rem;
+  font-size:.62rem;font-weight:700;
+  color:var(--muted);letter-spacing:.08em;
+  text-transform:uppercase;
+  display:flex;align-items:center;gap:.3rem;
+}
+.excel-dot{
+  width:8px;height:8px;border-radius:2px;
+  background:#217346;display:inline-block;
+}
+
+.prod-body{padding:1.2rem 1.5rem;flex:1;display:flex;flex-direction:column}
+.prod-cat{
+  font-size:.65rem;font-weight:800;
+  color:var(--green);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:.4rem;
+}
+.prod-name{
+  font-family:'Baloo 2',cursive;
+  font-size:1.05rem;font-weight:700;
+  color:var(--ink);margin-bottom:.4rem;
+  line-height:1.3;
+}
+.prod-desc{
+  font-size:.82rem;color:var(--muted);
+  line-height:1.6;flex:1;margin-bottom:1rem;
+}
+.prod-features{
+  display:flex;flex-wrap:wrap;gap:.35rem;
+  margin-bottom:1.1rem;
+}
+.feat-chip{
+  background:#f8fafc;border:1px solid var(--border);
+  font-size:.67rem;font-weight:600;color:var(--muted);
+  padding:2px 8px;border-radius:50px;
+}
+.prod-footer{
+  display:flex;align-items:center;
+  justify-content:space-between;gap:.8rem;
+  padding-top:1rem;border-top:1px solid var(--border);
+}
+.prod-price-block{}
+.prod-price{
+  font-family:'Baloo 2',cursive;
+  font-size:1.2rem;font-weight:800;
+  color:var(--green);
+}
+.prod-price .was{
+  font-size:.78rem;color:var(--muted);
+  text-decoration:line-through;margin-left:.3rem;
+  font-family:'Nunito',sans-serif;font-weight:600;
+}
+.prod-price-sub{font-size:.68rem;color:var(--muted)}
+
+.download-btn{
+  background:var(--green);color:#fff;
+  border:none;padding:.6rem 1.2rem;
+  border-radius:50px;font-family:'Nunito',sans-serif;
+  font-size:.82rem;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;gap:.4rem;
+  transition:all .2s;white-space:nowrap;
+  text-decoration:none;
+}
+.download-btn:hover{background:var(--glight);transform:scale(1.04)}
+.download-btn:active{transform:scale(.97)}
+.download-btn.downloading{
+  background:#64748b;cursor:not-allowed;
+  pointer-events:none;
+}
+
+/* Download count */
+.dl-count{
+  font-size:.68rem;color:var(--muted);
+  font-weight:600;margin-top:.3rem;
+}
+
+/* ── HOW IT WORKS ── */
+.how-section{
+  background:var(--white);
+  border-radius:20px;
+  padding:3rem 2rem;
+  margin:4rem 0;
+  border:1.5px solid var(--border);
+  box-shadow:var(--sh);
+}
+.how-steps{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:2rem;margin-top:2rem;
+}
+.how-step{text-align:center}
+.how-num{
+  width:44px;height:44px;border-radius:50%;
+  background:var(--gpale);color:var(--green);
+  font-family:'Baloo 2',cursive;font-size:1.1rem;
+  font-weight:800;display:flex;
+  align-items:center;justify-content:center;
+  margin:0 auto .8rem;border:2px solid rgba(22,163,74,.2);
+}
+.how-ico{font-size:1.8rem;margin-bottom:.5rem}
+.how-step h3{
+  font-family:'Baloo 2',cursive;
+  font-size:.95rem;font-weight:700;margin-bottom:.3rem;
+}
+.how-step p{font-size:.8rem;color:var(--muted);line-height:1.6}
+
+/* ── PREVIEW MODAL ── */
+.modal-bg{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;
+  padding:1.5rem;
+}
+.modal-bg.open{display:flex}
+.modal-box{
+  background:var(--white);border-radius:20px;
+  max-width:520px;width:100%;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:0 24px 80px rgba(0,0,0,.2);
+  animation:fadeUp .25s ease;
+}
+.modal-head{
+  background:linear-gradient(135deg,#0f172a,#164e36);
+  padding:1.5rem;border-radius:20px 20px 0 0;
+  position:relative;
+}
+.modal-head h2{
+  font-family:'Baloo 2',cursive;
+  color:#fff;font-size:1.2rem;font-weight:700;
+}
+.modal-head p{color:rgba(255,255,255,.65);font-size:.78rem;margin-top:3px}
+.modal-close{
+  position:absolute;top:1rem;right:1rem;
+  background:rgba(255,255,255,.15);border:none;
+  color:#fff;width:32px;height:32px;
+  border-radius:50%;cursor:pointer;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.modal-body{padding:1.5rem}
+.preview-list{margin-bottom:1.2rem}
+.preview-item{
+  display:flex;align-items:center;gap:.7rem;
+  padding:.5rem 0;border-bottom:1px solid var(--border);
+  font-size:.85rem;
+}
+.preview-item:last-child{border-bottom:none}
+.preview-item .tick{color:var(--green);font-size:.9rem;flex-shrink:0}
+.modal-dl-btn{
+  width:100%;background:var(--green);color:#fff;
+  border:none;padding:.85rem;border-radius:50px;
+  font-family:'Baloo 2',cursive;font-size:1rem;
+  font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  gap:.5rem;transition:background .2s;
+  text-decoration:none;
+}
+.modal-dl-btn:hover{background:var(--glight)}
+.form-row{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem}
+.form-row label{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.form-row input{
+  padding:.6rem .9rem;border:1.5px solid var(--border);
+  border-radius:10px;font-family:'Nunito',sans-serif;
+  font-size:.88rem;outline:none;transition:border-color .2s;
+}
+.form-row input:focus{border-color:var(--green)}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;
+  background:var(--ink);color:#fff;
+  padding:.7rem 1.2rem;border-radius:50px;
+  font-size:.82rem;font-weight:600;
+  box-shadow:var(--shm);opacity:0;
+  transform:translateY(10px);
+  transition:opacity .2s,transform .2s;
+  display:flex;align-items:center;gap:.5rem;
+  pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* ── FAQ ── */
+.faq-section{margin:4rem 0}
+.faq-item{
+  background:var(--white);border-radius:12px;
+  border:1.5px solid var(--border);
+  margin-bottom:.7rem;overflow:hidden;
+}
+.faq-q{
+  padding:1rem 1.3rem;font-weight:700;
+  cursor:pointer;display:flex;
+  justify-content:space-between;align-items:center;
+  font-size:.9rem;transition:background .15s;
+}
+.faq-q:hover{background:#f8fafc}
+.faq-q .arr{
+  font-size:.8rem;color:var(--muted);
+  transition:transform .2s;
+}
+.faq-item.open .faq-q .arr{transform:rotate(180deg)}
+.faq-a{
+  max-height:0;overflow:hidden;
+  transition:max-height .25s ease,padding .25s;
+  font-size:.85rem;color:var(--muted);
+  line-height:1.7;padding:0 1.3rem;
+}
+.faq-item.open .faq-a{max-height:200px;padding:.2rem 1.3rem 1rem}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--ink);color:rgba(255,255,255,.6);
+  padding:2.5rem 2rem;margin-top:4rem;
+  text-align:center;font-size:.82rem;line-height:2;
+}
+footer strong{color:#fff}
+footer a{color:rgba(255,255,255,.6);text-decoration:none}
+footer a:hover{color:#fff}
+
+/* ── UPI PAYMENT MODAL ── */
+.upi-overlay{
+  position:fixed;inset:0;z-index:600;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;
+  padding:1.5rem;
+}
+.upi-overlay.open{display:flex}
+.upi-box{
+  background:var(--white);border-radius:20px;
+  max-width:460px;width:100%;max-height:92vh;
+  overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.2);
+  animation:fadeUp .25s ease;
+}
+.upi-head{
+  background:linear-gradient(135deg,#5f259f,#4c1d95);
+  padding:1.2rem 1.5rem;border-radius:20px 20px 0 0;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.upi-head h2{font-family:'Baloo 2',cursive;color:#fff;font-size:1.05rem;font-weight:700}
+.upi-head p{color:rgba(255,255,255,.7);font-size:.72rem;margin-top:2px}
+.upi-close{background:rgba(255,255,255,.15);border:none;color:#fff;
+  width:30px;height:30px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.upi-body{padding:1.3rem}
+.upi-amount-bar{
+  background:#f3eeff;border-radius:10px;
+  padding:.75rem 1rem;margin-bottom:1rem;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.upi-amount-bar span:first-child{font-size:.8rem;color:#5f259f;font-weight:600}
+.upi-amount-val{font-family:'Baloo 2',cursive;font-size:1.4rem;font-weight:800;color:#5f259f}
+.upi-step{font-size:.7rem;font-weight:800;color:var(--muted);
+  letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem}
+.upi-qr-wrap{text-align:center;margin-bottom:1rem}
+.upi-qr-wrap p{font-size:.75rem;color:var(--muted);margin-bottom:.5rem;font-weight:600}
+.upi-qr-inner{display:inline-block;background:#fff;border:2px solid #5f259f;
+  border-radius:12px;padding:10px;position:relative}
+.upi-qr-dl{
+  position:absolute;bottom:-12px;right:-12px;
+  background:#5f259f;color:#fff;border:none;
+  width:28px;height:28px;border-radius:50%;
+  font-size:.85rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.upi-divider{display:flex;align-items:center;gap:.6rem;margin:.8rem 0}
+.upi-divider::before,.upi-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.upi-divider span{font-size:.72rem;color:var(--muted);font-weight:600}
+.upi-id-row{
+  background:#f8fafc;border:1.5px solid var(--border);
+  border-radius:10px;padding:.75rem 1rem;
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1rem;gap:.7rem;
+}
+.upi-id-text{font-family:'Baloo 2',cursive;font-size:.95rem;font-weight:700;word-break:break-all}
+.copy-btn{background:#5f259f;color:#fff;border:none;padding:.4rem .9rem;
+  border-radius:50px;font-family:'Nunito',sans-serif;font-size:.75rem;
+  font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .2s}
+.copy-btn:hover{background:#4c1d95}
+.upi-guide{background:#f0fdf4;border-radius:10px;padding:.75rem 1rem;
+  font-size:.75rem;color:#166534;line-height:2;margin-bottom:1rem}
+.upi-guide strong{display:block;font-size:.78rem;margin-bottom:.2rem}
+.upi-input{width:100%;padding:.65rem .9rem;border:1.5px solid var(--border);
+  border-radius:10px;font-family:'Nunito',sans-serif;font-size:.88rem;
+  outline:none;transition:border-color .2s;margin-bottom:.8rem}
+.upi-input:focus{border-color:#5f259f}
+.upi-form-row{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.7rem}
+.upi-form-row label{font-size:.68rem;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.06em}
+.upi-confirm-btn{width:100%;background:#16a34a;color:#fff;border:none;
+  padding:.8rem;border-radius:50px;font-family:'Baloo 2',cursive;
+  font-size:.95rem;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  transition:background .2s}
+.upi-confirm-btn:hover{background:#15803d}
+.upi-err{color:var(--red,#dc2626);font-size:.78rem;font-weight:600;
+  margin-bottom:.6rem;display:none}
+
+/* ── SUCCESS MODAL ── */
+.success-overlay{
+  position:fixed;inset:0;z-index:700;
+  background:rgba(0,0,0,.65);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;
+  padding:1.5rem;
+}
+.success-overlay.open{display:flex}
+.success-box{
+  background:var(--white);border-radius:20px;
+  max-width:400px;width:100%;padding:2rem;
+  text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.2);
+  animation:fadeUp .3s ease;
+}
+.success-box .big-ico{font-size:3.5rem;margin-bottom:.8rem}
+.success-box h2{font-family:'Baloo 2',cursive;font-size:1.3rem;
+  font-weight:800;color:var(--green);margin-bottom:.4rem}
+.success-box p{font-size:.84rem;color:var(--muted);margin-bottom:1.2rem;line-height:1.6}
+.success-dl-btn{
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  width:100%;background:var(--green);color:#fff;
+  padding:.85rem;border-radius:50px;text-decoration:none;
+  font-family:'Baloo 2',cursive;font-size:.95rem;font-weight:700;
+  margin-bottom:.6rem;transition:background .2s;border:none;cursor:pointer;
+}
+.success-dl-btn:hover{background:var(--glight)}
+.success-close{width:100%;background:#f8fafc;border:1.5px solid var(--border);
+  color:var(--muted);padding:.7rem;border-radius:50px;
+  font-family:'Nunito',sans-serif;font-size:.85rem;cursor:pointer}
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  nav{padding:0 1.2rem}
+  .nav-links{display:none}
+  .hero{padding:3.5rem 1.2rem 3rem}
+  .hero-icons{gap:1rem}
+  .hero-icon-card{padding:.6rem .9rem}
+  .main{padding:2.5rem 1.2rem}
+  .how-steps{grid-template-columns:1fr;gap:1.5rem}
+  .products-grid{grid-template-columns:1fr}
+  .stats-inner{gap:1.5rem}
+  .modal-bg{padding:.7rem}
+  .modal-box{border-radius:14px}
+  .upi-overlay,.success-overlay{padding:.7rem}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="icon">📊</div>
+    <div class="brand">Shop<span>Tools</span></div>
+  </a>
+  <div class="nav-links">
+    <a href="#products">Templates</a>
+    <a href="#how">How it works</a>
+    <a href="#faq">FAQ</a>
+    <a href="sree-sathya-store.html" class="nav-cta">🛒 Visit Shop</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">🎁 100% Free — No signup needed</div>
+  <h1>Free Business Templates<br>for <span class="highlight">Indian Shops</span></h1>
+  <p>Ready-to-use Excel templates for billing, GST invoices, stock management and daily accounts. Download instantly — no email required.</p>
+  <div class="hero-btns">
+    <a href="#products" class="btn-primary">⬇️ Download Free Templates</a>
+    <a href="#how" class="btn-secondary">How it works →</a>
+  </div>
+  <div class="hero-icons">
+    <div class="hero-icon-card">
+      <span class="ico">🧾</span>
+      <span>GST Invoice</span>
+    </div>
+    <div class="hero-icon-card">
+      <span class="ico">📦</span>
+      <span>Stock Sheet</span>
+    </div>
+    <div class="hero-icon-card">
+      <span class="ico">💰</span>
+      <span>Daily Accounts</span>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-section">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <span class="num" id="dl-count-total">500+</span>
+      <span class="lbl">Downloads</span>
+    </div>
+    <div class="stat-item">
+      <span class="num">5</span>
+      <span class="lbl">Free Templates</span>
+    </div>
+    <div class="stat-item">
+      <span class="num">100%</span>
+      <span class="lbl">Free Forever</span>
+    </div>
+    <div class="stat-item">
+      <span class="num">Excel</span>
+      <span class="lbl">Format (.xlsx)</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- PRODUCTS SECTION -->
+  <div id="products">
+    <div class="sec-header">
+      <span class="sec-eyebrow">Free Downloads</span>
+      <h2>Business Templates for Your Shop</h2>
+      <p>All templates are in Excel format (.xlsx). Works on PC, mobile and Google Sheets.</p>
+    </div>
+
+    <!-- Filter pills -->
+    <div class="filter-bar" id="filter-bar">
+      <button class="filter-pill active" onclick="filterProducts('all',this)">All Templates</button>
+      <button class="filter-pill" onclick="filterProducts('billing',this)">Billing</button>
+      <button class="filter-pill" onclick="filterProducts('inventory',this)">Inventory</button>
+      <button class="filter-pill" onclick="filterProducts('accounts',this)">Accounts</button>
+      <button class="filter-pill" onclick="filterProducts('gst',this)">GST</button>
+    </div>
+
+    <!-- Products grid -->
+    <div class="products-grid" id="products-grid"></div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="how-section" id="how">
+    <div class="sec-header" style="margin-bottom:0">
+      <span class="sec-eyebrow">Simple Process</span>
+      <h2>Download in 3 Simple Steps</h2>
+    </div>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-ico">🔍</div>
+        <div class="how-num">1</div>
+        <h3>Choose Template</h3>
+        <p>Browse templates and click the one you need for your business</p>
+      </div>
+      <div class="how-step">
+        <div class="how-ico">⬇️</div>
+        <div class="how-num">2</div>
+        <h3>Click Download</h3>
+        <p>Tap the Download button — no signup, no email, no waiting</p>
+      </div>
+      <div class="how-step">
+        <div class="how-ico">✏️</div>
+        <div class="how-num">3</div>
+        <h3>Use Immediately</h3>
+        <p>Open in Excel or Google Sheets and start using for your shop</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq-section" id="faq">
+    <div class="sec-header">
+      <span class="sec-eyebrow">Questions</span>
+      <h2>Frequently Asked</h2>
+    </div>
+    <div id="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Are these templates really free? <span class="arr">▼</span></div>
+        <div class="faq-a">Yes! All templates on this page are 100% free to download and use. No credit card, no signup, no email required.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Do I need Microsoft Excel? <span class="arr">▼</span></div>
+        <div class="faq-a">No. Templates work with Microsoft Excel, Google Sheets (free), LibreOffice, and WPS Office. Just upload to Google Drive to use free on mobile.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Can I edit the templates for my shop? <span class="arr">▼</span></div>
+        <div class="faq-a">Absolutely! All templates are fully editable. Change your shop name, address, GST number, product list — everything is customizable.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Will these templates work for GST filing? <span class="arr">▼</span></div>
+        <div class="faq-a">The GST invoice template follows standard GST invoice format with GSTIN, HSN codes, CGST/SGST/IGST fields. Always verify with your CA for official filing.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Will you add more templates? <span class="arr">▼</span></div>
+        <div class="faq-a">Yes! We add new templates regularly. Bookmark this page to check for new ones.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- PREVIEW MODAL -->
+<div class="modal-bg" id="previewModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2 id="modal-title">Template Preview</h2>
+      <p id="modal-subtitle">Excel Template (.xlsx)</p>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:1rem;line-height:1.6" id="modal-desc"></p>
+      <div class="preview-list" id="modal-features"></div>
+      <a id="modal-dl-btn" href="#" download class="modal-dl-btn" onclick="trackDownload()">
+        ⬇️ Download Free Template
+      </a>
+      <p style="font-size:.7rem;color:var(--muted);text-align:center;margin-top:.6rem">
+        No signup required · Instant download · Free forever
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- UPI PAYMENT MODAL -->
+<div class="upi-overlay" id="upiOverlay" onclick="if(event.target===this)closeUpi()">
+  <div class="upi-box">
+    <div class="upi-head">
+      <div>
+        <h2>📱 Pay with UPI</h2>
+        <p id="upi-prod-name">Template Name</p>
+      </div>
+      <button class="upi-close" onclick="closeUpi()">✕</button>
+    </div>
+    <div class="upi-body">
+
+      <!-- Amount -->
+      <div class="upi-amount-bar">
+        <span>Amount to Pay</span>
+        <span class="upi-amount-val" id="upi-amount">₹0</span>
+      </div>
+
+      <!-- Customer details -->
+      <div class="upi-form-row">
+        <label>Your Name *</label>
+        <input class="upi-input" type="text" id="upi-cname" placeholder="Enter your full name"/>
+      </div>
+      <div class="upi-form-row">
+        <label>Phone Number *</label>
+        <input class="upi-input" type="tel" id="upi-cphone" placeholder="10-digit mobile number" maxlength="10"/>
+      </div>
+
+      <!-- QR Code -->
+      <div class="upi-step">Step 1 — Scan QR or Copy UPI ID</div>
+      <div class="upi-qr-wrap">
+        <p>📷 Scan with PhonePe / GPay / Paytm / BHIM</p>
+        <div class="upi-qr-inner">
+          <div id="upi-qr-code"></div>
+          <button class="upi-qr-dl" onclick="downloadQR()" title="Download QR">⬇</button>
+        </div>
+      </div>
+
+      <!-- UPI ID copy -->
+      <div class="upi-divider"><span>OR</span></div>
+      <div class="upi-id-row">
+        <span class="upi-id-text" id="upi-id-display">yourname@ybl</span>
+        <button class="copy-btn" id="copy-upi-btn" onclick="copyUpiId()">📋 Copy</button>
+      </div>
+
+      <!-- Guide -->
+      <div class="upi-guide">
+        <strong>📖 How to pay:</strong>
+        1️⃣ Open PhonePe / GPay / Paytm<br>
+        2️⃣ Send money → Scan QR or paste UPI ID<br>
+        3️⃣ Enter amount: <strong id="upi-guide-amount">₹0</strong><br>
+        4️⃣ Pay → Copy the <strong>UTR number</strong><br>
+        5️⃣ Paste UTR below and confirm
+      </div>
+
+      <!-- UTR input -->
+      <div class="upi-step">Step 2 — Enter UTR / Transaction ID</div>
+      <input class="upi-input" type="text" id="upi-utr"
+        placeholder="12-digit UTR number from your payment app"/>
+
+      <p class="upi-err" id="upi-err"></p>
+
+      <button class="upi-confirm-btn" onclick="confirmUpiPayment()">
+        ✅ Confirm Payment & Download
+      </button>
+
+      <p style="font-size:.7rem;color:var(--muted);text-align:center;margin-top:.6rem">
+        After confirming, download starts immediately
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-box">
+    <div class="big-ico">🎉</div>
+    <h2>Payment Confirmed!</h2>
+    <p id="success-msg">Your payment has been verified. Download your template now!</p>
+    <a id="success-dl-link" href="#" download class="success-dl-btn">
+      ⬇️ Download Template Now
+    </a>
+    <button class="success-close" onclick="closeSuccess()">
+      Close
+    </button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- FOOTER -->
+<footer>
+  <strong>ShopTools</strong> — Free Business Templates for Indian Shops<br>
+  Made with ❤️ by <strong>Sree Sathya Store</strong><br>
+  <a href="sree-sathya-store.html">🛒 Visit Our Shop</a> ·
+  <a href="#products">📊 All Templates</a>
+</footer>
+
+
+<script>
+// ══════════════════════════════════════════════
+//  ⚙️ CONFIG — change these
+// ══════════════════════════════════════════════
+const SUPABASE_URL      = "https://mtpttvidsepvgzjitwrw.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10cHR0dmlkc2Vwdmd6aml0d3J3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNzg5MTMsImV4cCI6MjA5Njk1NDkxM30.p1SgDn5EiYXC369Qal0CuQEcS0TUBrI6-y9RYsBMg5I";
+const YOUR_UPI_ID       = "7094148820@upi";        // ← your UPI ID
+const YOUR_WA_NO        = "917094148820";         // ← your WhatsApp
+const STORE_NAME        = "ShopTools";
+// ══════════════════════════════════════════════
+
+const {createClient} = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const fmt = n => '₹' + Number(n).toLocaleString('en-IN');
+
+// ── STATE ─────────────────────────────────────
+let PRODUCTS       = [];   // loaded from Supabase
+let activeFilter   = 'all';
+let currentProduct = null;
+
+// ── LOAD PRODUCTS FROM SUPABASE ───────────────
+async function loadProducts(){
+  showSkeletons();
+  try{
+    const {data, error} = await sb
+      .from('digital_products')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order');
+
+    if(error) throw error;
+
+    // Map Supabase fields to local format
+    PRODUCTS = (data || []).map(p => ({
+      id:       p.id,
+      name:     p.name,
+      category: p.category || 'other',
+      tag:      p.tag || p.category || 'other',
+      icon:     p.icon || '📄',
+      desc:     p.description || '',
+      features: Array.isArray(p.features) ? p.features : JSON.parse(p.features || '[]'),
+      chips:    Array.isArray(p.chips)    ? p.chips    : JSON.parse(p.chips    || '[]'),
+      file:     p.file_url || '#',
+      price:    Number(p.price) || 0,
+      original_price: Number(p.original_price) || 199,
+      downloads: 0,
+    }));
+
+    renderProducts();
+    buildFilterPills();
+    loadDownloadCounts();
+
+  } catch(e){
+    console.warn('Supabase load failed:', e.message);
+    // Fallback to demo products
+    PRODUCTS = getDemoProducts();
+    renderProducts();
+    buildFilterPills();
+  }
+}
+
+// ── SKELETON LOADERS ──────────────────────────
+function showSkeletons(){
+  const grid = document.getElementById('products-grid');
+  grid.innerHTML = Array(5).fill(0).map(()=>`
+    <div class="prod-card" style="pointer-events:none">
+      <div class="prod-card-top" style="background:#f0f0f0;min-height:120px">
+        <div style="width:60px;height:60px;border-radius:12px;background:#e0e0e0"></div>
+      </div>
+      <div class="prod-body">
+        <div style="height:12px;background:#f0f0f0;border-radius:4px;width:50%;margin-bottom:.5rem"></div>
+        <div style="height:18px;background:#f0f0f0;border-radius:4px;width:80%;margin-bottom:.5rem"></div>
+        <div style="height:12px;background:#f0f0f0;border-radius:4px;width:100%;margin-bottom:.3rem"></div>
+        <div style="height:12px;background:#f0f0f0;border-radius:4px;width:90%;margin-bottom:1rem"></div>
+        <div style="height:36px;background:#f0f0f0;border-radius:50px;margin-top:auto"></div>
+      </div>
+    </div>`).join('');
+}
+
+// ── BUILD FILTER PILLS FROM CATEGORIES ────────
+function buildFilterPills(){
+  const cats = [...new Set(PRODUCTS.map(p => p.category).filter(Boolean))];
+  const bar  = document.getElementById('filter-bar');
+  bar.innerHTML =
+    `<button class="filter-pill active" onclick="filterProducts('all',this)">All Templates</button>` +
+    cats.map(c =>
+      `<button class="filter-pill" onclick="filterProducts('${c}',this)">${getCatLabel(c)}</button>`
+    ).join('');
+}
+
+// ── DEMO FALLBACK (when Supabase not configured) ──
+function getDemoProducts(){
+  return [
+    {id:1,name:'Shop Billing Template',category:'billing',tag:'billing',icon:'🧾',desc:'Professional billing template for retail shops.',features:['Auto-calculate totals','Print-ready A4','Bill number auto-increment'],chips:['Auto Total','Print Ready'],file:'templates/shop-billing-template.xlsx',price:0,original_price:199,downloads:124},
+    {id:2,name:'Stock Management Sheet',category:'inventory',tag:'inventory',icon:'📦',desc:'Track all your shop inventory in one place.',features:['Unlimited products','Low stock alerts','Stock value calculator'],chips:['Low Stock Alert','Auto Value'],file:'templates/stock-management-sheet.xlsx',price:0,original_price:199,downloads:98},
+    {id:3,name:'Daily Accounts Tracker',category:'accounts',tag:'accounts',icon:'💰',desc:'Track daily income and expenses for your shop.',features:['Daily entry','Monthly summary','Profit/Loss auto'],chips:['Monthly Summary','P&L Auto'],file:'templates/daily-accounts-tracker.xlsx',price:0,original_price:199,downloads:87},
+    {id:4,name:'GST Invoice Template',category:'gst',tag:'gst',icon:'📋',desc:'Standard GST-compliant invoice for B2B and B2C sales.',features:['GST compliant','CGST/SGST/IGST','HSN codes'],chips:['GST Compliant','HSN Codes'],file:'templates/gst-invoice-template.xlsx',price:0,original_price:199,downloads:156},
+    {id:5,name:'Shop Expense Tracker',category:'accounts',tag:'accounts',icon:'💸',desc:'Track every shop expense automatically.',features:['All categories','Weekly totals','Monthly compare'],chips:['Weekly View','Monthly Total'],file:'templates/shop-expense-tracker.xlsx',price:0,original_price:199,downloads:72},
+  ];
+}
+
+
+// ── RENDER PRODUCTS ──────────────────────────
+function renderProducts(){
+  const grid = document.getElementById('products-grid');
+  const list = activeFilter === 'all'
+    ? PRODUCTS
+    : PRODUCTS.filter(p => p.category === activeFilter || p.tag === activeFilter);
+
+  grid.innerHTML = list.map((p, i) => `
+    <div class="prod-card" style="animation-delay:${i*.08}s">
+      <div class="prod-card-top">
+        <span class="prod-icon ${p.iconClass}">${p.icon}</span>
+        <span class="free-badge">${p.price === 0 ? 'FREE' : fmt(p.price)}</span>
+        <div class="prod-format">
+          <span class="excel-dot"></span> Excel (.xlsx)
+        </div>
+      </div>
+      <div class="prod-body">
+        <div class="prod-cat">${getCatLabel(p.category)}</div>
+        <div class="prod-name">${p.name}</div>
+        <div class="prod-desc">${p.desc}</div>
+        <div class="prod-features">
+          ${p.chips.map(c=>`<span class="feat-chip">✓ ${c}</span>`).join('')}
+        </div>
+        <div class="prod-footer">
+          <div class="prod-price-block">
+            <div class="prod-price">
+              ${p.price === 0
+                ? `Free <span class="was">₹199</span>`
+                : `${fmt(p.price)}`}
+            </div>
+            <div class="dl-count">⬇️ ${p.downloads} downloads</div>
+          </div>
+          <button class="download-btn" onclick="openPreview(${p.id})">
+            ${p.price === 0 ? '⬇️ Download' : '💳 Buy Now'}
+          </button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function getCatLabel(c){
+  return {billing:'Billing',inventory:'Inventory',accounts:'Accounts',gst:'GST'}[c]||c;
+}
+
+// ── FILTER ───────────────────────────────────
+function filterProducts(filter, btn){
+  activeFilter = filter;
+  document.querySelectorAll('.filter-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderProducts();
+}
+
+// ── PREVIEW MODAL ────────────────────────────
+function openPreview(id){
+  const p = PRODUCTS.find(x=>x.id===id);
+  if(!p) return;
+  currentProduct = p;
+
+  document.getElementById('modal-title').textContent    = p.name;
+  document.getElementById('modal-subtitle').textContent = 'Excel Template (.xlsx)';
+  document.getElementById('modal-desc').textContent     = p.desc;
+  document.getElementById('modal-features').innerHTML   =
+    p.features.map(f=>`<div class="preview-item"><span class="tick">✅</span><span>${f}</span></div>`).join('');
+
+  // Show correct action button
+  const dlBtn = document.getElementById('modal-dl-btn');
+  if(p.price === 0){
+    dlBtn.href     = p.file;
+    dlBtn.download = p.file.split('/').pop();
+    dlBtn.textContent = '⬇️ Download Free Template';
+    dlBtn.onclick  = trackDownload;
+  } else {
+    dlBtn.removeAttribute('href');
+    dlBtn.removeAttribute('download');
+    dlBtn.innerHTML = '💳 Buy & Download — ' + fmt(p.price);
+    dlBtn.onclick   = () => { closeModal(); openUpi(p); };
+  }
+
+  document.getElementById('previewModal').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('previewModal').classList.remove('open');
+}
+
+// ── FREE DOWNLOAD TRACK ──────────────────────
+async function trackDownload(){
+  if(!currentProduct) return;
+  currentProduct.downloads++;
+
+  // Save to Supabase
+  try{
+    await sb.from('template_downloads').insert([{
+      product_id:   currentProduct.id,
+      product_name: currentProduct.name,
+      price:        0,
+      payment_type: 'free',
+      created_at:   new Date().toISOString()
+    }]);
+  } catch(e){ console.warn('Supabase log failed:', e.message); }
+
+  showToast(`✅ Downloading ${currentProduct.name}!`);
+  setTimeout(()=>{ closeModal(); renderProducts(); }, 800);
+}
+
+// ══════════════════════════════════════════════
+// 💳 UPI PAYMENT FLOW
+// ══════════════════════════════════════════════
+function openUpi(p){
+  currentProduct = p;
+
+  document.getElementById('upi-prod-name').textContent   = p.name;
+  document.getElementById('upi-amount').textContent      = fmt(p.price);
+  document.getElementById('upi-guide-amount').textContent= fmt(p.price);
+  document.getElementById('upi-id-display').textContent  = YOUR_UPI_ID;
+  document.getElementById('upi-cname').value  = '';
+  document.getElementById('upi-cphone').value = '';
+  document.getElementById('upi-utr').value    = '';
+  document.getElementById('upi-err').style.display = 'none';
+
+  // Generate QR
+  generateQR(p.price);
+
+  document.getElementById('upiOverlay').classList.add('open');
+}
+
+function closeUpi(){
+  document.getElementById('upiOverlay').classList.remove('open');
+}
+
+function generateQR(amount){
+  const qrEl = document.getElementById('upi-qr-code');
+  qrEl.innerHTML = '';
+
+  if(typeof QRCode === 'undefined'){
+    qrEl.innerHTML = `<div style="width:160px;height:160px;display:flex;align-items:center;
+      justify-content:center;background:#f3eeff;border-radius:8px;font-size:.75rem;
+      color:#5f259f;text-align:center;padding:1rem">Use Copy UPI ID below</div>`;
+    return;
+  }
+
+  const upiStr =
+    `upi://pay?pa=${encodeURIComponent(YOUR_UPI_ID)}` +
+    `&pn=${encodeURIComponent(STORE_NAME)}` +
+    `&am=${Number(amount).toFixed(2)}` +
+    `&cu=INR` +
+    `&tn=${encodeURIComponent('Payment for ' + (currentProduct?.name||'template'))}`;
+
+  new QRCode(qrEl,{
+    text:         upiStr,
+    width:        160,
+    height:       160,
+    colorDark:    '#5f259f',
+    colorLight:   '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+}
+
+function downloadQR(){
+  const canvas = document.querySelector('#upi-qr-code canvas');
+  if(!canvas){ showToast('QR not ready'); return; }
+  const a = document.createElement('a');
+  a.download = 'payment-qr.png';
+  a.href     = canvas.toDataURL();
+  a.click();
+}
+
+function copyUpiId(){
+  const btn = document.getElementById('copy-upi-btn');
+  navigator.clipboard.writeText(YOUR_UPI_ID).then(()=>{
+    btn.textContent = '✅ Copied!';
+    btn.style.background = '#16a34a';
+    showToast('✅ UPI ID copied! Open payment app and paste.');
+    setTimeout(()=>{ btn.textContent='📋 Copy'; btn.style.background=''; }, 2500);
+  }).catch(()=>{
+    // Fallback
+    const el = document.createElement('textarea');
+    el.value = YOUR_UPI_ID;
+    document.body.appendChild(el);
+    el.select(); document.execCommand('copy');
+    document.body.removeChild(el);
+    btn.textContent = '✅ Copied!';
+    setTimeout(()=>{ btn.textContent='📋 Copy'; }, 2500);
+  });
+}
+
+async function confirmUpiPayment(){
+  const name  = document.getElementById('upi-cname').value.trim();
+  const phone = document.getElementById('upi-cphone').value.trim();
+  const utr   = document.getElementById('upi-utr').value.trim();
+  const errEl = document.getElementById('upi-err');
+
+  if(!name){
+    errEl.textContent='Please enter your name.';
+    errEl.style.display='block'; return;
+  }
+  if(!phone || phone.length < 10){
+    errEl.textContent='Please enter a valid 10-digit phone number.';
+    errEl.style.display='block'; return;
+  }
+  if(!utr || utr.length < 8){
+    errEl.textContent='Please enter a valid UTR / Transaction ID.';
+    errEl.style.display='block'; return;
+  }
+  errEl.style.display = 'none';
+
+  const btn = document.querySelector('.upi-confirm-btn');
+  btn.innerHTML = '⏳ Confirming…';
+  btn.disabled  = true;
+
+  // Generate order number
+  const now     = new Date();
+  const orderNo = 'TPL' +
+    String(now.getMonth()+1).padStart(2,'0') +
+    String(now.getDate()).padStart(2,'0') +
+    '-' + Math.floor(1000 + Math.random()*9000);
+
+  // Save to Supabase
+  try{
+    const {error} = await sb.from('template_downloads').insert([{
+      order_number:   orderNo,
+      product_id:     currentProduct.id,
+      product_name:   currentProduct.name,
+      storage_path:   currentProduct.storage_path || null,
+      customer_name:  name,
+      customer_phone: phone,
+      price:          currentProduct.price,
+      utr_id:         utr,
+      payment_type:   'upi',
+      payment_status: 'pending',
+      link_sent:      false,
+      created_at:     now.toISOString()
+    }]);
+    if(error) throw error;
+  } catch(e){
+    console.warn('Supabase save error:', e.message);
+  }
+
+  // WhatsApp to YOU (owner) with order details
+  const ownerMsg =
+    `💳 *New Template Order — ${STORE_NAME}*%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `📋 Order: *${orderNo}*%0A` +
+    `📄 Product: *${currentProduct.name}*%0A` +
+    `👤 Name: *${name}*%0A` +
+    `📞 Phone: *${phone}*%0A` +
+    `💰 Amount: *${fmt(currentProduct.price)}*%0A` +
+    `🔖 UTR: *${utr}*%0A` +
+    `━━━━━━━━━━━━━━━%0A` +
+    `✅ Verify payment → send download link from admin page.`;
+
+  window.open(`https://wa.me/${YOUR_WA_NO}?text=${ownerMsg}`, '_blank');
+
+  currentProduct.downloads++;
+  closeUpi();
+  showSuccess(orderNo, name, phone);
+
+  btn.innerHTML = '✅ Confirm Payment & Download';
+  btn.disabled  = false;
+  renderProducts();
+}
+
+// ── SUCCESS MODAL — No direct download ───────
+function showSuccess(orderNo, name, phone){
+  document.getElementById('success-msg').innerHTML = `
+    Thank you <strong>${name}</strong>! 🎉<br><br>
+    Your order <strong>${orderNo}</strong> has been received.<br><br>
+    📲 We will verify your payment and send the
+    <strong>download link to your WhatsApp
+    (${phone})</strong> shortly.`;
+
+  // Hide download button — replaced with WhatsApp contact
+  const dlLink = document.getElementById('success-dl-link');
+  dlLink.href      = `https://wa.me/${YOUR_WA_NO}?text=Hi! My order is ${orderNo}. Please send download link.`;
+  dlLink.removeAttribute('download');
+  dlLink.innerHTML = '📲 Message Us on WhatsApp';
+  dlLink.style.background = '#25D366';
+  dlLink.target = '_blank';
+  dlLink.onclick = null;
+
+  document.getElementById('successOverlay').classList.add('open');
+}
+
+function closeSuccess(){
+  document.getElementById('successOverlay').classList.remove('open');
+}
+
+// ── FAQ ──────────────────────────────────────
+function toggleFaq(el){
+  const item = el.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
+}
+
+// ── LOAD DOWNLOAD COUNTS FROM SUPABASE ───────
+async function loadDownloadCounts(){
+  try{
+    const {data} = await sb
+      .from('template_downloads')
+      .select('product_id');
+    if(data){
+      const counts = {};
+      data.forEach(r=>{ counts[r.product_id]=(counts[r.product_id]||0)+1; });
+      PRODUCTS.forEach(p=>{ if(counts[p.id]) p.downloads = counts[p.id]; });
+      renderProducts();
+    }
+  } catch(e){ console.warn('Count load failed:', e.message); }
+}
+
+// ── TOAST ─────────────────────────────────────
+let tt;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(tt);
+  tt=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ── KEYBOARD ──────────────────────────────────
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    closeModal(); closeUpi(); closeSuccess();
+  }
+});
+
+// ── BACK BUTTON ───────────────────────────────
+history.pushState(null,'',location.href);
+window.addEventListener('popstate',()=>{
+  if(document.querySelector('.success-overlay.open')){ closeSuccess(); }
+  else if(document.querySelector('.upi-overlay.open')){ closeUpi(); }
+  else if(document.querySelector('.modal-bg.open')){ closeModal(); }
+  history.pushState(null,'',location.href);
+});
+
+// ── INIT ──────────────────────────────────────
+loadProducts(); // loads from Supabase then renders
+</script>
+
+</body>
+</html>
